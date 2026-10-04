@@ -168,7 +168,7 @@ Retrieve indexed historical defect records with optional filtering.
   - `offset`: Pagination offset (default: 0)
 
 ### `GET /api/historical/{issue_id}`
-Retrieve authentic defect by upstream issue ID (e.g., `KAFKA-10134`, `MOZ-1689021`, `ECLIPSE-492012`).
+Retrieve authentic defect by upstream issue ID (e.g., `KAFKA-10134`, `MOZ-12870`, `ECLIPSE-3322`).
 
 ### `POST /api/historical/search`
 Perform 384-dimensional vector similarity search against indexed historical chunks.

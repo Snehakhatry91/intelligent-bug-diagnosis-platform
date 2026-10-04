@@ -96,10 +96,13 @@ class RootCauseAgent(BaseAgent):
                 ai_inferences.append(line.strip())
 
         if not hypothesis:
-            if log_res and log_res.exception_type:
-                hypothesis = f"Failure triggered by {log_res.exception_type} during execution in {log_res.affected_code_path or 'system pipeline'}."
+            if evidence_status == "sufficient" and evidence:
+                top_match = evidence[0]
+                hypothesis = f"Historical evidence suggests alignment with [{top_match.project} {top_match.issue_id}]. Likely root cause: {log_res.exception_type or 'anomaly'} in {log_res.affected_code_path or (triage.affected_component if triage else 'subsystem')}."
+            elif log_res and log_res.exception_type:
+                hypothesis = f"Observed {log_res.exception_type}. Likely root cause: unhandled exception in {log_res.affected_code_path or 'system pipeline'}."
             else:
-                hypothesis = f"Anomalous behavior caused by state inconsistency in {triage.affected_component if triage else 'application'}."
+                hypothesis = f"Observed anomalous defect behavior in {triage.affected_component if triage else 'system'}. Likely state inconsistency."
 
         if not ai_inferences:
             ai_inferences.append("Derived from pattern matching against common architectural failure scenarios.")

@@ -43,6 +43,9 @@ class RetrievalEngine:
         Returns:
             Tuple of (List[HistoricalEvidenceItem], status_message)
         """
+        if not self.store.is_ready():
+            return [], "Vector index not found. Run: python scripts/ingest_historical_data.py"
+
         if not query_text or not query_text.strip():
             return [], "Empty query provided; no retrieval performed."
 
@@ -78,7 +81,9 @@ class RetrievalEngine:
                     resolution=chunk_meta.get("resolution"),
                     fix_patch_summary=chunk_meta.get("fix_patch_summary"),
                     source_url=chunk_meta.get("source_url"),
-                    component=chunk_meta.get("component")
+                    component=chunk_meta.get("component"),
+                    verified=chunk_meta.get("verified", True),
+                    data_type=chunk_meta.get("data_type", "historical")
                 )
             )
 

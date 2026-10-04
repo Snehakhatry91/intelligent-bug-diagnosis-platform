@@ -50,7 +50,7 @@ This document outlines the exact 18-step evaluation demonstration flow for prese
 
 ### Step 8: Show Historical Evidence (RAG)
 - Show the retrieved precedent matches from the vector index.
-- Point out the similarity score, project (`Apache KAFKA-10134`), and the resolution summary.
+- Point out the similarity score, project (`Apache HTTPCLIENT-2099` / `CASSANDRA-2189`), and the resolution summary.
 
 ### Step 9: Show Root Cause Agent
 - Show the **Root Cause Hypothesis**.
@@ -95,7 +95,7 @@ This document outlines the exact 18-step evaluation demonstration flow for prese
 
 ### Step 17: Show Empirical Evaluation & Testing Benchmarks
 - Navigate to **Empirical Evaluation**.
-- Review the measured metrics: **90.0% Severity Accuracy**, **100% Duplicate Precision**, **80% Duplicate Recall**, **88.9% F1-Score**.
+- Review the measured metrics: **80.0% Severity Accuracy**, **80.0% Priority Accuracy**, **100% Duplicate Precision**, **60% Duplicate Recall**, **75.0% F1-Score**.
 - Show the Duplicate Detection Confusion Matrix and the case-by-case audit log.
 
 ### Step 18: Explain System Architecture

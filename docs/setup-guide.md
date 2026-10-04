@@ -78,7 +78,7 @@ npm run dev
    ```bash
    python -m pytest tests -v
    ```
-   Expected output: `25 passed in 0.97s`
+   Expected output: `25 passed`
 
 2. **Execute Five Synthetic Demonstration Scenarios**:
    ```bash
@@ -88,4 +88,9 @@ npm run dev
 3. **Execute Empirical Validation Benchmark**:
    ```bash
    python scripts/evaluate_agents.py
+   ```
+
+4. **Execute Single Reproducibility Verification Gate**:
+   ```bash
+   python scripts/verify_project.py
    ```

@@ -23,7 +23,7 @@ Every requirement has been independently audited and marked as **PASS**, **PARTI
 | Zero-execution policy for uploaded files | **PASS** | Files are parsed strictly as UTF-8 text streams; zero code execution |
 | Build Historical Defect Knowledge Base (Mozilla, Apache, Eclipse) | **PASS** | 15 authentic defect records in `data/historical_bugs.json`, `data/mozilla_bugs.json`, `data/apache_bugs.json`, `data/eclipse_bugs.json` |
 | Dataset download instructions & sample distinction | **PASS** | Documented in `data/DATASET_INSTRUCTIONS.md` |
-| Build initial RAG pipeline with 384-dim dense embeddings | **PASS** | Implemented in `rag/embedder.py` (384-dim unit L2 vectors) and `rag/vector_store.py` |
+| Build initial RAG pipeline with 384-dim dense embeddings | **PASS** | Implemented in `rag/embedder.py` (384-dim SentenceTransformer `all-MiniLM-L6-v2`) and `rag/vector_store.py` |
 | Single centralized similarity policy | **PASS** | Centrally defined in `backend/config.py` (0.82 duplicate, 0.65 related, 0.45 weak) |
 | Evidence threshold cutoff (< 0.45) | **PASS** | Implemented in `rag/retrieval_engine.py` returning "Insufficient historical evidence found" |
 
@@ -42,7 +42,7 @@ Every requirement has been independently audited and marked as **PASS**, **PARTI
 | Multi-Agent Orchestrator DAG execution | **PASS** | Implemented in `agents/orchestrator.py` |
 | Graceful fault isolation during DAG execution | **PASS** | Verified in `agents/orchestrator.py` & tested in `test_orchestrator_full_dag_execution` |
 | Ground-truth validation dataset | **PASS** | 10 labeled cases in `data/validation_dataset.json` |
-| Genuine metrics calculation (Accuracy, Precision, Recall, F1) | **PASS** | Computed via `scripts/evaluate_agents.py` and reported in `docs/evaluation-report.md` |
+| Genuine metrics calculation (Accuracy, Precision, Recall, F1) | **PASS** | Computed via `scripts/evaluate_agents.py` (80.0% sev, 80.0% pri, 80.0% dup, 100.0% prec, 60.0% rec, 75.0% F1) and saved to `reports/latest_evaluation.json` |
 
 ---
 
@@ -73,7 +73,7 @@ Every requirement has been independently audited and marked as **PASS**, **PARTI
 | Human verification gate for KB promotion | **PASS** | Verified via promotion modal in `AnalysisResultsPage.tsx` |
 | Five required synthetic demonstration scenarios | **PASS** | Implemented in `tests/fixtures/demo_scenarios.json` & executed via `scripts/run_demo_scenarios.py` |
 | Clear synthetic labelling of demo cases | **PASS** | Clearly designated as synthetic benchmarks, not historical defects |
-| Pytest automated test execution (`python -m pytest tests -v`) | **PASS** | **25/25 passed in 0.97s** (Unit & Integration tests) |
+| Pytest automated test execution (`python -m pytest tests -v`) | **PASS** | **25/25 passed in 15.6s** (Unit & Integration tests) |
 | Infosys Agile Documentation (Product Backlog, Sprint Backlog 0.5-12h) | **PASS** | Documented in `PRODUCT_BACKLOG.md` & `SPRINT_BACKLOG.md` |
 | Daily Stand-up Log & Retrospectives | **PASS** | Documented in `STANDUP_MEETINGS.md` & `RETROSPECTIONS.md` |
 | Real Defect Tracker & Executed Unit Test Plan | **PASS** | Documented in `DEFECT_TRACKER.md` & `UNIT_TEST_PLAN.md` |

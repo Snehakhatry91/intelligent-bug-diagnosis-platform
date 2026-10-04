@@ -46,13 +46,13 @@ Modern software engineering organizations handle thousands of defect reports and
 ---
 
 ## 4. Empirical Evaluation Metrics
-Measured across 10 ground-truth validation cases (`data/validation_dataset.json`):
-- **Triage Severity Accuracy**: **90.0%** (9/10 correct)
+Measured across 10 ground-truth validation cases (`data/validation_dataset.json`) using `scripts/evaluate_agents.py`:
+- **Triage Severity Accuracy**: **80.0%** (8/10 correct)
 - **Triage Priority Accuracy**: **80.0%** (8/10 correct)
-- **Duplicate Detection Accuracy**: **90.0%** (9/10 correct)
-- **Duplicate Detection Precision**: **100.0%** (TP=4, FP=0 &mdash; zero false duplicate alarms)
-- **Duplicate Detection Recall**: **80.0%** (TP=4, FN=1)
-- **Duplicate Detection F1-Score**: **88.9%**
+- **Duplicate Detection Accuracy**: **80.0%** (8/10 correct)
+- **Duplicate Detection Precision**: **100.0%** (TP=3, FP=0 &mdash; zero false duplicate alarms)
+- **Duplicate Detection Recall**: **60.0%** (TP=3, FN=2)
+- **Duplicate Detection F1-Score**: **75.0%**
 
 ---
 

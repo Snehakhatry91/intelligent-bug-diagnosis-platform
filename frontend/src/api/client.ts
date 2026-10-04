@@ -250,6 +250,11 @@ export const api = {
     return res.json();
   },
 
+  getEvaluationMetrics: async (): Promise<any> => {
+    const res = await fetch(`${API_BASE}/analytics/evaluation`);
+    return res.json();
+  },
+
   // Knowledge Base
   listKBEntries: async (): Promise<KBEntryResponse[]> => {
     const res = await fetch(`${API_BASE}/knowledge-base`);
@@ -275,3 +280,6 @@ export const api = {
     return res.json();
   },
 };
+
+export const apiClient = api;
+

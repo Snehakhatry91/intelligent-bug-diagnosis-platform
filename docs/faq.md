@@ -132,12 +132,13 @@ The multi-agent orchestrator implements **graceful fault isolation**: each agent
 
 ### 19. How are agents evaluated?
 Against 10 ground-truth validation cases in `data/validation_dataset.json`. Real predictions are compared against ground truth to calculate:
-- Severity Accuracy: 90.0%
+- Severity Accuracy: 80.0%
 - Priority Accuracy: 80.0%
+- Duplicate Detection Accuracy: 80.0%
 - Duplicate Detection Precision: 100.0% (Zero false duplicate alarms)
-- Duplicate Detection Recall: 80.0%
-- Duplicate Detection F1-Score: 88.9%
-Metrics are generated directly by `scripts/evaluate_agents.py`.
+- Duplicate Detection Recall: 60.0%
+- Duplicate Detection F1-Score: 75.0%
+Metrics are generated directly by `scripts/evaluate_agents.py` into `reports/latest_evaluation.json`.
 
 ---
 

@@ -4,18 +4,45 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-teal.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8.3-purple.svg)](https://vite.dev)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.0-cyan.svg)](https://tailwindcss.com)
 [![Pytest](https://img.shields.io/badge/Pytest-25%2F25%20Passed-emerald.svg)](https://pytest.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An autonomous multi-agent software engineering platform that accelerates defect triage, decompiles stack traces deterministically, searches historical defect corpora (Mozilla, Apache, Eclipse) via 384-dimensional dense semantic vector similarity, identifies duplicates, formulates anti-hallucinated root cause hypotheses, and produces production-grade code patches with automated test plans.
+An autonomous multi-agent software engineering platform that accelerates defect triage, extracts crash signals deterministically, searches historical defect corpora (Mozilla, Apache, Eclipse) via 384-dimensional dense semantic vector similarity (`sentence-transformers/all-MiniLM-L6-v2`), identifies duplicates, formulates anti-hallucinated root cause hypotheses, and produces production-grade code patches with automated test plans.
 
 **Organization**: Infosys Internship Evaluation Project  
 **Copyright**: Copyright (c) 2025 Vidzai Digital. MIT License.
 
 ---
 
-## 🏛️ System Architecture
+## Overview
+
+Modern software development teams face severe operational bottlenecks when triaging, diagnosing, and resolving production defects. Software bug reports are often incomplete, duplicate filings go unnoticed, and root-cause analyses require extensive manual investigation across complex distributed architectures. The **Intelligent Bug Diagnosis Platform** automates this pipeline using deterministic heuristics, a specialized multi-agent directed acyclic graph (DAG), and Retrieval-Augmented Generation (RAG) backed by real semantic embeddings over verified open-source defect repositories.
+
+## Problem Statement
+
+1. **High Mean Time to Detect (MTTD) & Resolve (MTTR)**: Engineers spend excessive hours reconstructing stack traces and deciphering cryptic failure logs.
+2. **Duplication Fatigue**: Up to 30% of filed issues in enterprise systems are duplicate or closely related defects.
+3. **AI Hallucinations in Automated Tooling**: Generative AI tools frequently invent fake stack traces, non-existent libraries, or fictitious upstream ticket citations.
+4. **Data Integrity & Traceability**: Automated systems often lack genuine historical evidence links with verifiable provenance.
+
+## Features
+
+- **Multi-Agent Orchestration**: Six cooperative, specialized agents executing in a canonical pipeline.
+- **Deterministic Log Analysis**: Rule-based parser extracting exception types, failing frames, and file paths across Java, Python, Node.js, and Unix signals.
+- **Authentic Historical Knowledge Base**: Verified historical defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with real ticket URLs and provenance tracking.
+- **Dense Semantic Embeddings**: Powered by local open-source `sentence-transformers/all-MiniLM-L6-v2` generating 384-dimensional unit vectors.
+- **Single Centralized Similarity Policy**: Exact cosine similarity with unified threshold gating:
+  - $\ge 0.82$: **Likely Duplicate**
+  - $0.65 - 0.81$: **Related Issue**
+  - $0.45 - 0.64$: **Weak Match**
+  - $< 0.45$: **Insufficient Historical Evidence**
+- **Strict Anti-Hallucination Policy**: Four-tier attribution separating observed facts from AI inferences. If similarity is $< 0.45$, returns `"Insufficient historical evidence found"` without fabricating citations.
+- **Knowledge Base Growth**: Human-in-the-loop candidate promotion workflow before new defects enter the active vector index.
+- **Reconciled Analytics Telemetry**: Mathematical integrity checks ensuring sum of category distributions equals total population.
+
+---
+
+## Architecture
 
 ```
 Bug Submission (Text, Stack Trace, or 5MB File Upload)
@@ -26,7 +53,7 @@ Bug Submission (Text, Stack Trace, or 5MB File Upload)
                      │
                      ▼
           [Log Analysis Agent]
-   (Deterministic Java, Python, Node, Go)
+   (Deterministic Java, Python, Node, Signals)
                      │
                      ▼
          [RAG Retrieval Engine]
@@ -51,27 +78,202 @@ Bug Submission (Text, Stack Trace, or 5MB File Upload)
          ┌───────────┴───────────┐
          ▼                       ▼
  [Defect Analytics]    [Verified KB Growth]
-  (Reconciled &sum;=N)    (Human Verification)
+  (Reconciled ∑=N)      (Human Verification)
+```
+
+## Multi-Agent Pipeline
+
+The multi-agent architecture executes sequentially through `agents/orchestrator.py`:
+
+1. **Triage Agent** (`agents/triage_agent.py`): Infers defect severity, business priority, and affected system component using heuristic signal rules.
+2. **Log Analysis Agent** (`agents/log_analysis_agent.py`): Deterministically regex-parses execution traces into structured `StackFrame` and exception objects.
+3. **RAG Retrieval Engine** (`rag/retrieval_engine.py`): Encodes query with `SentenceTransformer`, queries the vector store, and extracts precedents.
+4. **Duplicate Detection Agent** (`agents/duplicate_detection_agent.py`): Applies the centralized 0.82 cutoff to classify as duplicate, related, or novel.
+5. **Root Cause Agent** (`agents/root_cause_agent.py`): Combines observed facts and retrieved evidence into a grounded root cause hypothesis.
+6. **Remediation Agent** (`agents/remediation_agent.py`): Generates unified diff code patches and unit/integration regression test plans.
+
+## RAG Architecture
+
+```
+Bug Report / Crash Log
+        ↓
+Text Normalization & Chunking
+        ↓
+SentenceTransformer Embedding ('all-MiniLM-L6-v2')
+        ↓
+384-Dimensional Dense Vector
+        ↓
+Persistent Vector Store (rag/vector_index.pkl)
+        ↓
+Exact Cosine Similarity
+        ↓
+Top-K Historical Evidence Matches
+```
+
+## Historical Knowledge Base
+
+The platform ships with genuinely verified public defects from three major open-source ecosystems:
+- **Mozilla Bugzilla**: Core networking, layout memory leaks, and SpiderMonkey deadlocks (e.g., `MOZ-12870`, `MOZ-120`, `MOZ-32992`, `MOZ-7531`, `MOZ-1434`).
+- **Apache Jira**: Kafka client deadlocks, Cassandra SSTable OOMs, and HttpComponents socket timeouts (e.g., `KAFKA-10134`, `KAFKA-897`, `CASSANDRA-19564`, `HTTPCLIENT-2099`, `CASSANDRA-2189`).
+- **Eclipse Bugzilla**: Workbench deadlocks, build NPEs, and repository authentication errors (e.g., `ECLIPSE-3322`, `ECLIPSE-11303`, `ECLIPSE-4869`, `ECLIPSE-3128`, `ECLIPSE-5226`).
+
+Each record contains verified provenance:
+```json
+{
+  "id": "MOZ-12870",
+  "project": "Mozilla",
+  "source": "Mozilla Bugzilla",
+  "source_issue_id": "12870",
+  "source_url": "https://bugzilla.mozilla.org/show_bug.cgi?id=12870",
+  "title": "AB-BA deadlocks between pipe and channel critical sections",
+  "description": "Deadlock occurs between nsPipe and nsHttpChannel...",
+  "component": "Networking",
+  "resolution": "FIXED",
+  "resolution_summary": "Reordered lock acquisition protocol...",
+  "verified": true,
+  "data_type": "historical"
+}
+```
+
+Synthetic demo scenarios are explicitly partitioned with `"synthetic_demo": true` and `"data_type": "synthetic"`.
+
+## Embedding Model
+
+- **Model**: `sentence-transformers/all-MiniLM-L6-v2`
+- **Architecture**: 6-layer MiniLM transformer with mean pooling
+- **Embedding Dimension**: 384
+- **Normalization**: Unit L2 sphere ($||\mathbf{v}||_2 = 1.0$)
+- **Similarity Metric**: Cosine similarity ($\mathbf{u} \cdot \mathbf{v}$)
+- **Runtime**: Local CPU execution; no external API key, zero cost, completely reproducible.
+
+## Duplicate Detection
+
+Centralized threshold policy configured in `backend/config.py`:
+- **$\ge 0.82$**: **Likely Duplicate** (Surfaces historical fix and prevents redundant defect filing)
+- **$0.65 - 0.81$**: **Related Issue** (Shared component or subsystem; suggests known workarounds)
+- **$0.45 - 0.64$**: **Weak Match** (Distantly related architectural context)
+- **$< 0.45$**: **Filtered Out** (Insufficient evidence; treated as novel defect)
+
+## Root Cause Analysis
+
+Enforces strict four-tier attribution:
+1. **OBSERVED FACTS**: Deterministically extracted from the submitted error message and stack trace.
+2. **HISTORICAL EVIDENCE**: Grounded citations from retrieved vector store records.
+3. **AI INFERENCE**: Clearly flagged deductive reasoning on failure propagation.
+4. **FIX RECOMMENDATION**: Actionable engineering remedy.
+
+Wording strictly distinguishes `"Observed"` from `"Likely"` and `"Historical evidence suggests"`.
+
+## Remediation
+
+Produces concrete remediation packages:
+- Specific action title and explanation
+- Concrete unified diff code patch
+- Automated unit/integration test specifications
+- Implementation guidance and affected files
+
+## Analytics
+
+- Reconciled population metrics: $\sum(\text{Category Counts}) = \text{Total Population}$.
+- Explicitly separates user submissions, verified KB entries, and historical defect corpus.
+- If no submissions exist, displays clear "No data available" states rather than fabricated numbers.
+
+## Security
+
+- Maximum upload size ceiling: **5 MB**
+- Whitelisted file extensions: `.txt`, `.log`, `.md`, `.json`
+- Input sanitization: Strips null bytes (`\x00`) and control characters
+- UTF-8 byte validation
+- No uploaded file execution
+- Zero hardcoded secrets, passwords, or committed API keys
+
+## Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Backend** | Python 3.12, FastAPI, Uvicorn, Pydantic v2 |
+| **Database** | SQLite + `aiosqlite` via SQLAlchemy 2.0 (async) |
+| **ML & Embeddings** | `sentence-transformers` (`all-MiniLM-L6-v2`), PyTorch, NumPy |
+| **Vector Index** | In-Memory Cosine Vector Store with deterministic disk persistence |
+| **Frontend** | React 18, TypeScript, Vite 8, Tailwind CSS, Lucide Icons |
+| **Testing** | Pytest, pytest-asyncio |
+
+## Project Structure
+
+```
+intelligent-bug-diagnosis-platform/
+├── backend/
+│   ├── api/                  # FastAPI REST endpoints
+│   ├── models/               # Pydantic schemas & SQLAlchemy ORM models
+│   ├── services/             # Submission, analytics, and orchestrator services
+│   ├── config.py             # Centralized settings & similarity thresholds
+│   ├── database.py           # Async database engine & session maker
+│   └── main.py               # FastAPI application entrypoint
+├── agents/
+│   ├── orchestrator.py       # Multi-agent DAG controller
+│   ├── triage_agent.py       # Severity & priority triage
+│   ├── log_analysis_agent.py # Deterministic stack trace parser
+│   ├── root_cause_agent.py   # 4-tier root cause attribution
+│   ├── duplicate_detection_agent.py # Centralized duplicate gating
+│   └── remediation_agent.py  # Code patch & test recommendation
+├── rag/
+│   ├── embedder.py           # SentenceTransformer (all-MiniLM-L6-v2)
+│   ├── vector_store.py       # Persistent vector index & cosine search
+│   ├── retrieval_engine.py   # Anti-hallucination retrieval service
+│   ├── text_chunker.py       # Domain-aware text chunking
+│   └── kb_growth_manager.py  # Human verification promotion workflow
+├── data/
+│   ├── historical_bugs.json  # 15 verified historical records
+│   ├── mozilla_bugs.json     # 5 verified Mozilla Bugzilla records
+│   ├── apache_bugs.json      # 5 verified Apache Jira records
+│   ├── eclipse_bugs.json     # 5 verified Eclipse Bugzilla records
+│   └── validation_dataset.json # 10 labeled ground-truth evaluation cases
+├── reports/
+│   └── latest_evaluation.json# Machine-readable evaluation report
+├── scripts/
+│   ├── ingest_historical_data.py # Ingestion & vector indexing pipeline
+│   ├── evaluate_agents.py        # Empirical evaluation benchmark
+│   ├── run_demo_scenarios.py     # 5 synthetic demo scenarios runner
+│   └── verify_project.py         # 8-step comprehensive reproducibility check
+├── frontend/
+│   ├── src/pages/            # Dashboard, Submit, Findings, Analytics, KB, Evaluation
+│   └── src/api/client.ts     # Typed API client
+└── tests/                    # 25 automated unit & integration tests
 ```
 
 ---
 
-## 🚀 Quick Start Guide
+## Installation
 
-### 1. Ingest Data & Initialize Vector Index
+```bash
+# 1. Clone repository
+git clone https://github.com/Snehakhatry91/intelligent-bug-diagnosis-platform.git
+cd intelligent-bug-diagnosis-platform
+
+# 2. Install Python dependencies
+pip install -r requirements.txt
+
+# 3. Install Frontend dependencies
+cd frontend
+npm install
+cd ..
+```
+
+## Running the System
+
+### Step 1: Ingest Historical Knowledge Base
 ```bash
 python scripts/ingest_historical_data.py
 ```
 
-### 2. Start Backend API (FastAPI)
+### Step 2: Start Backend Server
 ```bash
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-- API Base URL: `http://localhost:8000`
-- Swagger UI Documentation: `http://localhost:8000/docs`
-- Health Endpoint: `http://localhost:8000/health`
+- API Docs: `http://localhost:8000/docs`
+- Health: `http://localhost:8000/health`
 
-### 3. Start Frontend Dashboard (React 18 + Vite)
+### Step 3: Start Frontend Dev Server
 ```bash
 cd frontend
 npm run dev
@@ -80,76 +282,99 @@ npm run dev
 
 ---
 
-## 🧪 Testing & Evaluation
+## Running Tests
 
-### Run Automated Pytest Suite
 ```bash
 python -m pytest tests -v
 ```
-**Result: 25 passed in 0.97s (100% Pass Rate)**
+**Status: 25 passed in 15.6s (100% Pass Rate)**
 
-### Run 5 Required Demonstration Scenarios
+---
+
+## Running Evaluation
+
+```bash
+python scripts/evaluate_agents.py
+```
+Outputs machine-readable metrics to `reports/latest_evaluation.json` and generates `docs/evaluation-report.md`.
+
+---
+
+## Running Five Demo Scenarios
+
 ```bash
 python scripts/run_demo_scenarios.py
 ```
 Executes the five mandatory failure modes end-to-end:
-1. `NullPointerException` (High Severity, False Duplicate)
-2. `Database Connection Pool Deadlock` (Critical Severity, Related Issue)
-3. `JWT Bearer Auth Token Expiration` (Medium Severity, **Likely Duplicate &ge; 0.82**)
-4. `Network Socket Timeout on External API` (High Severity, False Duplicate)
-5. `OutOfMemory Heap Space Exhaustion` (High Severity, **Likely Duplicate &ge; 0.82**)
+1. `NullPointerException Dereference` (High Severity, Novel Defect)
+2. `Database Connection Pool Saturated Deadlock` (Critical Severity, Novel Defect)
+3. `JWT Bearer Authentication Token Expiration` (Medium Severity, Novel Defect)
+4. `Network Socket Timeout on External API` (High Severity, Weak Match correlation)
+5. `OutOfMemory Heap Exhaustion in Document Indexing` (High Severity, Weak Match correlation)
 
-### Run Empirical Validation Benchmark
+---
+
+## Reproducibility
+
+Execute the single comprehensive verification gate:
 ```bash
-python scripts/evaluate_agents.py
+python scripts/verify_project.py
 ```
-- Triage Severity Accuracy: **90.0%**
-- Triage Priority Accuracy: **80.0%**
-- Duplicate Detection Accuracy: **90.0%**
-- Duplicate Detection Precision: **100.0%** (Zero false duplicates)
-- Duplicate Detection Recall: **80.0%**
-- Duplicate Detection F1-Score: **88.9%**
+
+Expected output:
+```
+===================================
+PROJECT VERIFICATION
+===================================
+Historical KB     : PASS
+Embedding Model   : PASS
+Vector Index      : PASS
+Unit Tests        : PASS
+Agent Evaluation  : PASS
+Demo Scenarios    : PASS
+Frontend Build    : PASS
+-----------------------------------
+Overall           : PASS
+===================================
+```
 
 ---
 
-## 📋 Infosys Agile & Technical Artifacts
+## Evaluation Results
 
-- [Product Backlog (MOSCOW)](PRODUCT_BACKLOG.md)
-- [Sprint Backlog (0.5 to 12h tasks)](SPRINT_BACKLOG.md)
-- [Daily Stand-up Meeting Log](STANDUP_MEETINGS.md)
-- [Sprint Retrospectives](RETROSPECTIONS.md)
-- [Internal Defect Tracker](DEFECT_TRACKER.md)
-- [Executed Unit Test Plan (25/25 Passed)](UNIT_TEST_PLAN.md)
-- [Final Completion Checklist (34/34 Pass)](PROJECT_COMPLETION_CHECKLIST.md)
-- [Final Status Report](FINAL_STATUS.md)
+*Measured from the latest reproducible run (`reports/latest_evaluation.json`):*
 
-### Technical Documentation
-- [System Architecture](docs/architecture.md)
-- [Agent Design & DAG](docs/agent-design.md)
-- [RAG & Vector Policy](docs/rag-design.md)
-- [Canonical Data Models](docs/data-model.md)
-- [API REST Documentation](docs/api-documentation.md)
-- [Local Setup Guide](docs/setup-guide.md)
-- [Production Deployment Guide](docs/deployment-guide.md)
-- [Automated Testing Report](docs/testing-report.md)
-- [Empirical Evaluation Report](docs/evaluation-report.md)
-- [Platform User Guide](docs/user-guide.md)
-- [Project Final Report](docs/project-report.md)
-- [Evaluation Demonstration Walkthrough](docs/demo-guide.md)
-- [Comprehensive Technical FAQ (23 Interview Questions)](docs/faq.md)
+| Metric | Empirical Value | Sample Size | Derivation |
+| :--- | :--- | :--- | :--- |
+| **Severity Classification Accuracy** | **80.0%** | 10 | 8 / 10 ground-truth matches |
+| **Priority Classification Accuracy** | **80.0%** | 10 | 8 / 10 ground-truth matches |
+| **Duplicate Detection Accuracy** | **80.0%** | 10 | 8 / 10 correct binary calls |
+| **Duplicate Detection Precision** | **100.0%** | 3 Positives | $\text{TP}/(\text{TP} + \text{FP}) = 3 / (3 + 0)$ |
+| **Duplicate Detection Recall** | **60.0%** | 5 Actuals | $\text{TP}/(\text{TP} + \text{FN}) = 3 / (3 + 2)$ |
+| **Duplicate Detection F1-Score** | **75.0%** | 10 | Harmonic mean of Precision and Recall |
+
+### Duplicate Detection Confusion Matrix
+
+| Actual \ Predicted | Predicted Duplicate ($\ge 0.82$) | Predicted Novel / Non-Duplicate ($< 0.82$) | Total Actual |
+| :--- | :--- | :--- | :--- |
+| **Actual Duplicate** | **3** (TP) | **2** (FN) | **5** |
+| **Actual Non-Duplicate** | **0** (FP) | **5** (TN) | **5** |
+| **Total Predicted** | **3** | **7** | **10** |
 
 ---
 
-## 🔒 Security & Anti-Hallucination Guarantees
-- 5 MB maximum file upload ceiling
-- Allowed extensions strictly enforced (`.txt`, `.log`, `.md`, `.json`)
-- Null-byte and control-character sanitization
-- Zero uploaded-file execution guarantee (parsed purely as text)
-- Four-Tier Epistemic Attribution separating empirical facts from AI inferences
-- Strict population reconciliation ($\sum Counts \equiv Total Submissions$)
+## Limitations
 
----
+1. **Context Window**: Log parser extracts up to 25 stack frames; extreme multi-megabyte traces are chunked.
+2. **Local Embedding Latency**: The `all-MiniLM-L6-v2` model takes ~12ms per inference on modern CPUs; batch ingestion handles 32 chunks per batch.
+3. **Domain Vocabulary**: Highly proprietary internal framework classes without public equivalents rely primarily on deterministic stack frame locations rather than historical semantic matches.
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.  
-Copyright (c) 2025 Vidzai Digital.
+## Future Improvements
+
+1. Integration with active bug trackers via bi-directional Webhooks (GitHub Issues, Jira Service Desk).
+2. Distributed vector search via `pgvector` or Qdrant for billion-scale historical defect repositories.
+3. Autonomous Pull Request generation with git commit validation and CI build testing.
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

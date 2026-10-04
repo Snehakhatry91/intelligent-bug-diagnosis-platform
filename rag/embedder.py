@@ -1,61 +1,46 @@
 """
 Semantic Vector Embedder
-Generates 384-dimensional dense semantic vector representations for defect texts and logs.
-Calibrated to produce unit-normalized vectors where dot product equals cosine similarity,
-aligning with the single centralized similarity policy:
-- >= 0.82: Likely Duplicate
-- 0.65 - 0.81: Related Issue
-- 0.45 - 0.64: Weak Match
-- < 0.45: Insufficient Evidence / No Match
+Generates 384-dimensional dense semantic vector representations for defect texts and logs using
+the local open-source SentenceTransformer ('sentence-transformers/all-MiniLM-L6-v2') model.
+Runs completely locally with zero external API dependencies and zero API keys.
+Vectors are unit-normalized so dot product equals cosine similarity.
 """
 
-import hashlib
-import math
-import re
-from typing import List, Union
+import os
+from typing import List, Optional
 import numpy as np
+
+EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_DIMENSION = 384
+EMBEDDING_METRIC = "cosine"
+
+INDEX_METADATA = {
+    "embedding_model": EMBEDDING_MODEL_NAME,
+    "embedding_dimension": EMBEDDING_DIMENSION,
+    "metric": EMBEDDING_METRIC,
+}
 
 
 class SemanticEmbedder:
     """
-    384-dimensional dense semantic embedder for bug reports, traces, and code contexts.
-    Utilizes character and sub-word n-gram dense hashing with software-engineering
-    semantic domain projections and L2 unit-sphere normalization.
+    384-dimensional dense semantic embedder using sentence-transformers/all-MiniLM-L6-v2.
+    Pretrained transformer produces unit-normalized semantic embeddings for bug reports,
+    stack traces, error logs, and historical defect resolutions.
     """
 
-    def __init__(self, dimension: int = 384):
+    def __init__(self, model_name: str = EMBEDDING_MODEL_NAME, dimension: int = EMBEDDING_DIMENSION):
+        self.model_name = model_name
         self.dimension = dimension
+        self._model = None
 
-        # Pre-calibrated semantic concept anchors to align related failure modes
-        self.domain_clusters = {
-            "null_pointer": [
-                "nullpointerexception", "null pointer", "dereference null", "nullpart", "mdnstask",
-                "recordaccumulator.append", "cluster.partition", "ref.getpart", "access_violation"
-            ],
-            "database_deadlock": [
-                "deadlock", "connection pool", "nohostavailableexception", "cql", "connectiontimeout",
-                "ab-ba", "catalogloader", "connectionprofile", "reentrantlock", "postgresql"
-            ],
-            "memory_oom": [
-                "outofmemoryerror", "java heap space", "heap exhaustion", "memory leak",
-                "ionmonkey", "fst index", "positiveintoutputs", "directbytearraybuffer", "indexmanager"
-            ],
-            "network_timeout": [
-                "sockettimeoutexception", "etimedout", "read timeout", "p2 repository",
-                "handshake timeout", "mss clamping", "chunkedinputstream", "filereader"
-            ],
-            "auth_security": [
-                "jwt", "tokenignorecase", "authorization", "bearer token", "tokenexpirederror",
-                "mpc session", "marketplacehttpclient", "401 unauthorized", "unauthorized"
-            ]
-        }
-
-    def _tokenize(self, text: str) -> List[str]:
-        """Extract alphanumeric tokens, lowercased, including package/class dots."""
-        text = text.lower()
-        # Extract word tokens
-        tokens = re.findall(r"[a-z0-9_.$:-]+", text)
-        return tokens
+    def _get_model(self):
+        """Lazy-load the SentenceTransformer model on first usage."""
+        if self._model is None:
+            from sentence_transformers import SentenceTransformer
+            # Disable unnecessary symlink warnings on Windows
+            os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+            self._model = SentenceTransformer(self.model_name)
+        return self._model
 
     def embed_text(self, text: str) -> np.ndarray:
         """
@@ -63,66 +48,51 @@ class SemanticEmbedder:
         Returns a float32 numpy array with unit L2 norm.
         """
         if not text or not text.strip():
-            # Return zero vector if empty
             vec = np.zeros(self.dimension, dtype=np.float32)
             vec[0] = 1.0
             return vec
 
-        raw_vector = np.zeros(self.dimension, dtype=np.float64)
-        tokens = self._tokenize(text)
-        lower_text = text.lower()
+        model = self._get_model()
+        vec = model.encode(
+            text,
+            convert_to_numpy=True,
+            normalize_embeddings=True,
+            show_progress_bar=False,
+        ).astype(np.float32)
 
-        # 1. Sub-word & token hash projection
-        for token in tokens:
-            # Deterministic hash into dimension slots
-            h = int(hashlib.sha256(token.encode("utf-8")).hexdigest()[:8], 16)
-            slot = h % self.dimension
-            sign = 1.0 if ((h >> 16) & 1) == 0 else -1.0
-            raw_vector[slot] += sign * (1.0 + math.log(1.0 + len(token)))
-
-        # 2. Bigrams for sequential phrase context
-        for i in range(len(tokens) - 1):
-            bigram = f"{tokens[i]}_{tokens[i+1]}"
-            h = int(hashlib.md5(bigram.encode("utf-8")).hexdigest()[:8], 16)
-            slot = h % self.dimension
-            sign = 1.0 if ((h >> 16) & 1) == 0 else -1.0
-            raw_vector[slot] += sign * 1.5
-
-        # 3. Domain semantic alignment projection
-        # Applies semantic affinity when texts share engineering failure domains
-        cluster_offset = 0
-        for cluster_name, keywords in self.domain_clusters.items():
-            match_score = 0.0
-            for kw in keywords:
-                if kw in lower_text:
-                    match_score += 2.5
-
-            if match_score > 0:
-                cluster_slice_start = (cluster_offset * 40) % self.dimension
-                cluster_slice_end = min(cluster_slice_start + 40, self.dimension)
-                raw_vector[cluster_slice_start:cluster_slice_end] += match_score * 0.75
-            cluster_offset += 1
-
-        # 4. L2 Normalization to ensure unit sphere projection
-        norm = np.linalg.norm(raw_vector)
-        if norm > 1e-9:
-            unit_vector = (raw_vector / norm).astype(np.float32)
-        else:
-            unit_vector = np.zeros(self.dimension, dtype=np.float32)
-            unit_vector[0] = 1.0
-
-        return unit_vector
+        return vec
 
     def embed_batch(self, texts: List[str]) -> np.ndarray:
-        """Batch embedding of multiple texts. Returns (N, 384) float32 matrix."""
-        vectors = [self.embed_text(t) for t in texts]
-        return np.vstack(vectors)
+        """
+        Batch embedding of multiple texts. Returns (N, 384) float32 matrix with unit L2 norms.
+        """
+        if not texts:
+            return np.empty((0, self.dimension), dtype=np.float32)
+
+        sanitized_texts = [t if (t and t.strip()) else "empty" for t in texts]
+        model = self._get_model()
+        vectors = model.encode(
+            sanitized_texts,
+            convert_to_numpy=True,
+            normalize_embeddings=True,
+            batch_size=32,
+            show_progress_bar=False,
+        ).astype(np.float32)
+
+        return vectors
 
     @staticmethod
     def cosine_similarity(v1: np.ndarray, v2: np.ndarray) -> float:
         """Calculate cosine similarity between two unit vectors."""
-        dot = float(np.dot(v1, v2))
-        return max(-1.0, min(1.0, dot))
+        v1_norm = np.linalg.norm(v1)
+        v2_norm = np.linalg.norm(v2)
+        if v1_norm < 1e-9 or v2_norm < 1e-9:
+            return 0.0
+        u1 = v1 / v1_norm
+        u2 = v2 / v2_norm
+        dot = float(np.dot(u1, u2))
+        return float(max(-1.0, min(1.0, dot)))
 
 
+# Global singleton instance
 embedder = SemanticEmbedder()

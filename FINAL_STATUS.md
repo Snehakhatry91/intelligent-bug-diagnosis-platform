@@ -15,14 +15,14 @@
 - **Multi-Agent DAG**:
   - `Triage Agent`: Dynamic severity (Critical, High, Medium, Low), priority, component, confidence, and empirical reasoning.
   - `Log Analysis Agent`: Deterministic regex and structural parsing for Java, Python, Node.js, Go, and system crash signals.
-  - `RAG Retrieval Engine`: 384-dimensional dense semantic vector retrieval over historical defect corpora.
+  - `RAG Retrieval Engine`: 384-dimensional dense semantic vector retrieval via SentenceTransformer (`sentence-transformers/all-MiniLM-L6-v2`) over historical defect corpora.
   - `Duplicate Detection Agent`: Enforces the single centralized similarity policy (&ge; 0.82 duplicate cutoff).
   - `Root Cause Agent`: Four-tier attribution (Observed Facts, Historical Evidence, AI Inference, Fix Recommendation).
   - `Remediation Agent`: Generates actionable engineering summaries, code patch snippets, and automated test suites.
   - `Multi-Agent Orchestrator`: Coordinates sequential DAG execution with fault isolation and timing telemetries.
 - **Data & Ingestion**:
-  - 15 authentic historical defects from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla.
-  - Ingestion pipeline with cleaning, normalization, chunking, 384-dim dense embedding, and vector indexing.
+  - 15 genuinely verified public defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with full provenance and verified source URLs.
+  - Ingestion pipeline with validation, normalization, chunking, SentenceTransformer embedding, and vector indexing.
 - **Analytics & Knowledge Base Growth**:
   - Mathematically reconciled defect telemetry ($\sum Counts \equiv Total Submissions$).
   - Human-in-the-loop verification gate promoting confirmed resolutions into active vector memory.
@@ -39,7 +39,7 @@ Command: `python -m pytest tests -v`
 - **Total Tests Executed**: 25
 - **Passed**: 25
 - **Failed**: 0
-- **Execution Time**: 0.97 seconds
+- **Execution Time**: 15.6 seconds
 - **Pass Rate**: **100%**
 
 ### Breakdown by Test Suite:
@@ -54,18 +54,26 @@ Command: `python -m pytest tests -v`
 ---
 
 ## 3. Actual Evaluation Metrics
-Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-truth validation cases:
-- **Triage Severity Classification Accuracy**: **90.0%** (9 / 10 correct)
+Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-truth validation cases (`reports/latest_evaluation.json`):
+- **Triage Severity Classification Accuracy**: **80.0%** (8 / 10 correct)
 - **Triage Priority Classification Accuracy**: **80.0%** (8 / 10 correct)
-- **Duplicate Detection Accuracy**: **90.0%** (9 / 10 correct)
-- **Duplicate Detection Precision**: **100.0%** (TP=4, FP=0 &mdash; zero false positive duplicates)
-- **Duplicate Detection Recall**: **80.0%** (TP=4, FN=1)
-- **Duplicate Detection F1-Score**: **88.9%**
+- **Duplicate Detection Accuracy**: **80.0%** (8 / 10 correct)
+- **Duplicate Detection Precision**: **100.0%** (TP=3, FP=0 &mdash; zero false positive duplicates)
+- **Duplicate Detection Recall**: **60.0%** (TP=3, FN=2)
+- **Duplicate Detection F1-Score**: **75.0%**
+
+### Duplicate Detection Confusion Matrix:
+| Actual \ Predicted | Predicted Duplicate (&ge; 0.82) | Predicted Novel (< 0.82) | Total |
+| :--- | :--- | :--- | :--- |
+| **Actual Duplicate** | 3 (TP) | 2 (FN) | 5 |
+| **Actual Novel** | 0 (FP) | 5 (TN) | 5 |
+| **Total Predicted** | 3 | 7 | 10 |
 
 ---
 
 ## 4. Dataset & RAG Status
-- **Historical Corpora**: Authentic open-source records from Mozilla Bugzilla (`MOZ-1689021`, etc.), Apache Jira (`KAFKA-10134`, `CASSANDRA-14002`, `HTTPCLIENT-1850`, `LUCENE-8901`, `TOMCAT-62310`), and Eclipse Bugzilla (`ECLIPSE-492012`, `ECLIPSE-510204`, etc.).
+- **Historical Corpora**: Genuinely verified public defects from Mozilla Bugzilla (`MOZ-12870`, `MOZ-120`, `MOZ-32992`, `MOZ-7531`, `MOZ-1434`), Apache Jira (`KAFKA-10134`, `KAFKA-897`, `CASSANDRA-19564`, `HTTPCLIENT-2099`, `CASSANDRA-2189`), and Eclipse Bugzilla (`ECLIPSE-3322`, `ECLIPSE-11303`, `ECLIPSE-4869`, `ECLIPSE-3128`, `ECLIPSE-5226`).
+- **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (local execution).
 - **Vector Dimension**: 384 dimensions (L2-normalized unit vectors).
 - **Indexed Chunks**: 15 distinct semantic chunks indexed in `rag/vector_index.pkl`.
 - **Similarity Policy**:
@@ -77,21 +85,21 @@ Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-tr
 ---
 
 ## 5. Deployment Status
-- **Containerization**: `docker-compose.yml` configured with PostgreSQL 16 (`pgvector`), FastAPI backend, and NGINX frontend.
-- **Frontend Production Bundle**: Built via `npm run build` in 2.06s (`dist/index.html`, `dist/assets/index-DrXn9Xu3.js`).
-- **Free-Tier Readiness**: Ready for Vercel/Netlify (frontend) and Render/Railway (backend + database).
+- **Frontend Production Bundle**: Built via `npm run build` in 0.63s (`dist/index.html`, `dist/assets/index-BdrJ6YqN.js`, `dist/assets/index-ojam9d8l.css`).
+- **Local & Open-Source**: Completely locally runnable with zero external API dependencies or paid services.
+- **Reproducibility Verification**: Verified via `python scripts/verify_project.py` with 100% PASS across all 8 quality steps.
 
 ---
 
 ## 6. Known Limitations
-- The local fallback provider is a deterministic rule-and-heuristic engine (explicitly labeled as such) rather than a multi-billion-parameter neural LLM.
-- SQLite is used for hermetic local testing; production deployment should utilize PostgreSQL with `pgvector`.
+- The fallback provider uses deterministic heuristic rules rather than calling an external LLM API when running offline.
+- SQLite with `aiosqlite` is the default local store; enterprise multi-node deployment can configure PostgreSQL with `pgvector`.
 - Stack trace parsing currently supports unminified Java, Python, Node.js, and Go; obfuscated bytecode or minified bundles require source-map upload.
 
 ---
 
 ## 7. Remaining Work
-- None for the Infosys internship scope. All four milestones, evaluation cases, agile documentation, and technical interview requirements are 100% complete. Future production work can integrate live GitHub webhooks and auto-PR generation.
+- None for the Infosys internship scope. All requirements, evaluation cases, agile documentation, and technical interview requirements are 100% complete and reproducible.
 
 ---
 
@@ -102,33 +110,27 @@ Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-tr
 python scripts/ingest_historical_data.py
 ```
 
-### Automated Pytest Suite
+### Run All 25 Pytest Tests
 ```bash
 python -m pytest tests -v
 ```
 
-### Five Demonstration Scenarios Runner
+### Run Five Required Demo Scenarios
 ```bash
 python scripts/run_demo_scenarios.py
 ```
 
-### Empirical Validation Benchmark Runner
+### Run Empirical Benchmark Evaluation
 ```bash
 python scripts/evaluate_agents.py
 ```
 
-### Starting Backend Server
+### Run Comprehensive Reproducibility Check
 ```bash
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+python scripts/verify_project.py
 ```
 
-### Starting Frontend Development Server
-```bash
-cd frontend
-npm run dev
-```
-
-### Building Frontend Production Bundle
+### Build Frontend
 ```bash
 cd frontend
 npm run build

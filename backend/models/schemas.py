@@ -116,6 +116,8 @@ class HistoricalEvidenceItem(BaseModel):
     fix_patch_summary: Optional[str] = None
     source_url: Optional[str] = None
     component: Optional[str] = None
+    verified: bool = True
+    data_type: str = "historical"
 
 
 class DuplicateDetectionResult(BaseModel):
@@ -203,6 +205,8 @@ class HistoricalDefectSchema(BaseModel):
     resolution: str
     fix_patch_summary: str
     source_url: str
+    verified: bool = True
+    data_type: str = "historical"
     created_at: Optional[Any] = None
 
     model_config = ConfigDict(from_attributes=True)

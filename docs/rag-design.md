@@ -39,12 +39,14 @@ Raw Defect Repositories (Mozilla, Apache, Eclipse)
                    │
                    ▼
      Stage 4: Dense Vector Embedding
+       - Model: sentence-transformers/all-MiniLM-L6-v2 (local execution)
        - 384-dimensional dense semantic vectors
-       - Unit L2 normalization: ||v|| = 1.0
+       - Unit L2 normalization: ||v|| = 1.0 (dot product == cosine similarity)
                    │
                    ▼
      Stage 5: Persistent Vector Indexing
-       - Stored in pgvector (PostgreSQL) or local cosine vector index (SQLite)
+       - Stored with metadata: embedding_model, embedding_dimension (384), metric (cosine)
+       - Deterministic persistence in rag/vector_index.pkl with graceful missing-index detection
 ```
 
 ---

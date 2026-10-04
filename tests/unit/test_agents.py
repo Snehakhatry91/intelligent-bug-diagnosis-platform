@@ -61,7 +61,7 @@ async def test_duplicate_detection_agent_threshold_gating():
         HistoricalEvidenceItem(
             issue_id="KAFKA-10134",
             project="Apache",
-            title="NullPointerException in KafkaProducer",
+            title="High CPU issue during rebalance in Kafka consumer after upgrading to 2.5",
             similarity_score=0.88,
             classification=DuplicateClassification.LIKELY_DUPLICATE
         )
@@ -73,9 +73,9 @@ async def test_duplicate_detection_agent_threshold_gating():
     # Item with score 0.72 (Related, not duplicate)
     related_evidence = [
         HistoricalEvidenceItem(
-            issue_id="HTTPCLIENT-1850",
+            issue_id="HTTPCLIENT-2099",
             project="Apache",
-            title="SocketTimeoutException streaming",
+            title="SocketTimeoutException during connection release in pool manager",
             similarity_score=0.72,
             classification=DuplicateClassification.RELATED_ISSUE
         )

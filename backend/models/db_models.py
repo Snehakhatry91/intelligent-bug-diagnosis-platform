@@ -58,6 +58,8 @@ class HistoricalDefect(Base):
     resolution = Column(String(100), nullable=False)
     fix_patch_summary = Column(Text, nullable=False)
     source_url = Column(String(500), nullable=False)
+    verified = Column(Boolean, nullable=False, default=True)
+    data_type = Column(String(50), nullable=False, default="historical")
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
 

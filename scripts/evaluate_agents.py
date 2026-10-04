@@ -1,14 +1,15 @@
 """
 Agent Evaluation & Benchmark Script
-Runs the 10 ground-truth validation cases through the pipeline.
+Runs the 10 ground-truth validation cases through the complete multi-agent pipeline.
 Calculates ACTUAL mathematical metrics (Accuracy, Precision, Recall, F1-Score)
 without faking or inventing test figures.
-Outputs verified metrics into docs/evaluation-report.md.
+Outputs verified metrics into reports/latest_evaluation.json and docs/evaluation-report.md.
 """
 
 import asyncio
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import sys
 import uuid
@@ -28,8 +29,16 @@ async def run_evaluation():
     print("RUNNING AGENT & PIPELINE BENCHMARK EVALUATION")
     print("=" * 65)
 
-    vector_store.load()
+    # 1. Verify vector index exists
+    if not vector_store.is_ready():
+        print("Vector index not found. Run:\npython scripts/ingest_historical_data.py", file=sys.stderr)
+        sys.exit(1)
+
     val_file = BASE_DIR / "data" / "validation_dataset.json"
+    if not val_file.exists():
+        print(f"Validation dataset not found at {val_file}", file=sys.stderr)
+        sys.exit(1)
+
     with open(val_file, "r", encoding="utf-8") as f:
         cases = json.load(f)
 
@@ -39,7 +48,7 @@ async def run_evaluation():
     sev_correct = 0
     pri_correct = 0
 
-    # For Duplicate Detection Binary Metrics (Positive = Duplicate, Negative = Non-duplicate)
+    # Binary Metrics for Duplicate Detection (Positive = Duplicate, Negative = Non-duplicate)
     tp = 0  # Predicted True, Actual True
     fp = 0  # Predicted True, Actual False
     tn = 0  # Predicted False, Actual False
@@ -98,16 +107,17 @@ async def run_evaluation():
             "dup_ok": (pred_dup == actual_dup)
         })
 
-    # Calculations
-    sev_accuracy = sev_correct / total_cases
-    pri_accuracy = pri_correct / total_cases
+    # Mathematical metric calculations
+    sev_accuracy = round(sev_correct / total_cases, 4)
+    pri_accuracy = round(pri_correct / total_cases, 4)
 
-    dup_accuracy = (tp + tn) / total_cases
-    dup_precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    dup_recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    dup_f1 = (
+    dup_accuracy = round((tp + tn) / total_cases, 4)
+    dup_precision = round(tp / (tp + fp) if (tp + fp) > 0 else 0.0, 4)
+    dup_recall = round(tp / (tp + fn) if (tp + fn) > 0 else 0.0, 4)
+    dup_f1 = round(
         2 * (dup_precision * dup_recall) / (dup_precision + dup_recall)
-        if (dup_precision + dup_recall) > 0 else 0.0
+        if (dup_precision + dup_recall) > 0 else 0.0,
+        4
     )
 
     print(f"{'Case ID':<10} | {'Predicted Sev':<14} | {'Actual Sev':<12} | {'Pred Dup':<9} | {'Act Dup':<8} | {'Status'}")
@@ -128,13 +138,45 @@ async def run_evaluation():
     print(f"Duplicate Detection F1-Score:          {dup_f1 * 100:.1f}%")
     print("=" * 65)
 
-    # Write evaluation report to docs/evaluation-report.md
+    # 2. Output machine-readable JSON report
+    reports_dir = BASE_DIR / "reports"
+    os.makedirs(reports_dir, exist_ok=True)
+    json_report_path = reports_dir / "latest_evaluation.json"
+
+    metrics_payload = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "dataset_size": total_cases,
+        "severity_accuracy": sev_accuracy,
+        "priority_accuracy": pri_accuracy,
+        "duplicate_accuracy": dup_accuracy,
+        "duplicate_precision": dup_precision,
+        "duplicate_recall": dup_recall,
+        "duplicate_f1": dup_f1,
+        "confusion_matrix": {
+            "true_positives": tp,
+            "false_positives": fp,
+            "true_negatives": tn,
+            "false_negatives": fn
+        },
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        "embedding_dimension": 384,
+        "duplicate_threshold": settings.DUPLICATE_THRESHOLD,
+        "related_threshold": settings.RELATED_THRESHOLD,
+        "evidence_threshold": settings.EVIDENCE_THRESHOLD
+    }
+
+    with open(json_report_path, "w", encoding="utf-8") as f:
+        json.dump(metrics_payload, f, indent=2)
+    print(f"[OK] Saved machine-readable metrics to: {json_report_path}")
+
+    # 3. Write human-readable markdown evaluation report
     report_content = f"""# Empirical Agent Evaluation & Benchmark Report
 
 ## 1. Evaluation Methodology
-- **Validation Dataset**: Labeled ground truth across 10 distinct software defects in `data/validation_dataset.json`.
+- **Validation Dataset**: Labeled ground truth across {total_cases} distinct software defects in `data/validation_dataset.json`.
 - **Ecosystems Tested**: Mozilla Bugzilla, Apache Jira, Eclipse Bugzilla, and novel application errors.
 - **Evaluation Rule**: Metrics are calculated solely from actual model predictions compared against ground truth labels. No synthetic figures or fabricated metrics are reported.
+- **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions, cosine similarity).
 
 ---
 
@@ -182,7 +224,9 @@ async def run_evaluation():
     report_path = BASE_DIR / "docs" / "evaluation-report.md"
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(report_content)
-    print(f"\n[OK] Generated empirical evaluation report: {report_path}")
+    print(f"[OK] Generated empirical evaluation report: {report_path}")
+
+    return metrics_payload
 
 
 if __name__ == "__main__":

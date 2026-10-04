@@ -35,6 +35,9 @@ async def run_demos():
 
     await init_db()
     vector_store.load()
+    if not vector_store.is_ready():
+        print("Vector index not found. Run:\npython scripts/ingest_historical_data.py", file=sys.stderr)
+        sys.exit(1)
     print(f"[OK] Vector index loaded ({vector_store.count()} chunks)")
 
     fixture_path = BASE_DIR / "tests" / "fixtures" / "demo_scenarios.json"

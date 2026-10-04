@@ -28,7 +28,9 @@ class TextChunker:
             "severity": record.get("severity", ""),
             "resolution": record.get("resolution", ""),
             "fix_patch_summary": record.get("fix_patch_summary", ""),
-            "source_url": record.get("source_url", "")
+            "source_url": record.get("source_url", ""),
+            "verified": record.get("verified", True),
+            "data_type": record.get("data_type", "historical")
         }
 
         # 1. Primary summary chunk (Title + Component + Core description snippet)
