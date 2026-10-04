@@ -1,0 +1,122 @@
+[
+  {
+    "case_id": "VAL-001",
+    "title": "Null dereference in Necko HTTP channel during background DNS resolution timeout",
+    "raw_content": "When an HTTP connection request encounters a DNS resolution timeout while the tab is being closed, nsHttpChannel::OnStopRequest dereferences a null mDNSTask pointer causing a crash in xul.dll with EXCEPTION_ACCESS_VIOLATION.",
+    "ground_truth": {
+      "severity": "Critical",
+      "priority": "High",
+      "component": "Network / Transport",
+      "is_duplicate": true,
+      "expected_match_id": "MOZ-1689021"
+    }
+  },
+  {
+    "case_id": "VAL-002",
+    "title": "Database connection pool exhaustion and socket timeout under concurrent read repair",
+    "raw_content": "Native transport connection worker pool saturates when background read repair tasks stall on unresponsive nodes. New client CQL connections time out with NoHostAvailableException / ConnectionTimeoutException after reaching max connection pool ceiling.",
+    "ground_truth": {
+      "severity": "Critical",
+      "priority": "High",
+      "component": "Database / Persistence",
+      "is_duplicate": true,
+      "expected_match_id": "CASSANDRA-14002"
+    }
+  },
+  {
+    "case_id": "VAL-003",
+    "title": "OutOfMemoryError: Java heap space during FST index terms dictionary construction with long terms",
+    "raw_content": "Compiling finite state transducers for terms dictionaries exceeding 10M unique tokens triggers heavy 32-bit array allocations in PositiveIntOutputs, crashing JVM with OutOfMemoryError.",
+    "ground_truth": {
+      "severity": "High",
+      "priority": "High",
+      "component": "Memory & Runtime",
+      "is_duplicate": true,
+      "expected_match_id": "LUCENE-8901"
+    }
+  },
+  {
+    "case_id": "VAL-004",
+    "title": "JWT Bearer authentication filter rejects valid authorization header on header case variation",
+    "raw_content": "OAuth2 Bearer token authenticator checks Authorization header using case-sensitive lookup. Client proxies sending 'authorization' (lowercase) trigger 401 Unauthorized / TokenMissingException.",
+    "ground_truth": {
+      "severity": "Medium",
+      "priority": "Medium",
+      "component": "Authentication / Security",
+      "is_duplicate": true,
+      "expected_match_id": "TOMCAT-62310"
+    }
+  },
+  {
+    "case_id": "VAL-005",
+    "title": "SocketTimeoutException not handled during chunked HTTP/1.1 response streaming",
+    "raw_content": "When reading long chunked streams from reverse proxies, socket read timeouts cause ChunkedInputStream to leave connection socket in DIRTY state instead of releasing lease back to PoolingHttpClientConnectionManager.",
+    "ground_truth": {
+      "severity": "High",
+      "priority": "Medium",
+      "component": "Network / Transport",
+      "is_duplicate": true,
+      "expected_match_id": "HTTPCLIENT-1850"
+    }
+  },
+  {
+    "case_id": "VAL-006",
+    "title": "NullPointerException in payment gateway during guest checkout",
+    "raw_content": "java.lang.NullPointerException: Cannot invoke payment method token\n\tat com.custom.billing.CheckoutService.charge(CheckoutService.java:99)",
+    "ground_truth": {
+      "severity": "High",
+      "priority": "High",
+      "component": "Core / General System",
+      "is_duplicate": false,
+      "expected_match_id": null
+    }
+  },
+  {
+    "case_id": "VAL-007",
+    "title": "Minor cosmetic typo in user profile settings navigation header",
+    "raw_content": "The word 'Preferences' is misspelled as 'Preferencs' on the top navbar layout. Cosmetic styling typo, non-blocking warning.",
+    "ground_truth": {
+      "severity": "Low",
+      "priority": "Low",
+      "component": "Platform UI / Frontend",
+      "is_duplicate": false,
+      "expected_match_id": null
+    }
+  },
+  {
+    "case_id": "VAL-008",
+    "title": "API rate limit warning emitted when syncing contacts intermittently",
+    "raw_content": "HTTP 429 Too Many Requests: Rate limit quota exceeded for endpoint /v1/contacts. Client received retry-after header: 30 seconds.",
+    "ground_truth": {
+      "severity": "Medium",
+      "priority": "Medium",
+      "component": "Core / General System",
+      "is_duplicate": false,
+      "expected_match_id": null
+    }
+  },
+  {
+    "case_id": "VAL-009",
+    "title": "Deadlock detected during simultaneous inventory reservation and warehouse sync",
+    "raw_content": "Fatal deadlock: Transaction (Process ID 82) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.",
+    "ground_truth": {
+      "severity": "Critical",
+      "priority": "High",
+      "component": "Database / Persistence",
+      "is_duplicate": false,
+      "expected_match_id": null
+    }
+  },
+  {
+    "case_id": "VAL-010",
+    "title": "Deprecated API warning in legacy report export module",
+    "raw_content": "[WARN] Deprecation notice: FileExporter.exportToCSV() is deprecated since v2.4 and will be removed in v3.0. Use StreamExporter instead.",
+    "ground_truth": {
+      "severity": "Low",
+      "priority": "Low",
+      "component": "Core / General System",
+      "is_duplicate": false,
+      "expected_match_id": null
+    }
+  }
+]

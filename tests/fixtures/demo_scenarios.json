@@ -1,0 +1,47 @@
+[
+  {
+    "scenario_id": "DEMO-01",
+    "name": "NullPointerException Dereference",
+    "synthetic_demonstration": true,
+    "title": "NullPointerException in OrderProcessingService during checkout",
+    "input_type": "stack_trace",
+    "raw_content": "java.lang.NullPointerException: Cannot invoke \"com.store.payment.PaymentMethod.getToken()\" because \"paymentMethod\" is null\n\tat com.store.order.OrderProcessingService.executePayment(OrderProcessingService.java:142)\n\tat com.store.order.OrderProcessingService.processOrder(OrderProcessingService.java:88)\n\tat com.store.web.CheckoutController.submitCheckout(CheckoutController.java:54)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)",
+    "environment_details": "Production JDK 17, Spring Boot 3.1.2, Checkout Gateway"
+  },
+  {
+    "scenario_id": "DEMO-02",
+    "name": "Database Connection Pool Saturated Deadlock",
+    "synthetic_demonstration": true,
+    "title": "Database connection pool exhausted and deadlock detected on PostgreSQL writer",
+    "input_type": "error_log",
+    "raw_content": "2026-10-05 00:15:32.411 [http-nio-8080-exec-12] ERROR org.postgresql.core.v3.ConnectionFactoryImpl - Connection refused to PostgreSQL server at 10.0.4.12:5432\norg.postgresql.util.PSQLException: Connection to 10.0.4.12:5432 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.\n\tat org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:319)\n\tat org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:49)\nCaused by: java.net.ConnectException: Connection refused: no further information\n2026-10-05 00:15:33.002 [HikariPool-1 housekeeper] WARN com.zaxxer.hikari.pool.HikariPool - ConnectionPool saturation: 50 connections active, 12 waiting, deadlock detected in thread pool.",
+    "environment_details": "PostgreSQL 15 Cluster, HikariCP max-pool-size=50"
+  },
+  {
+    "scenario_id": "DEMO-03",
+    "name": "JWT Bearer Authentication Token Expiration",
+    "synthetic_demonstration": true,
+    "title": "JWT Bearer Token expired returning 401 Unauthorized during API sync",
+    "input_type": "error_log",
+    "raw_content": "2026-10-05T00:22:15.890Z [api-gateway] WARN  auth.jwt.validator - TokenExpiredError: jwt expired at 2026-10-05T00:20:00.000Z, current time 2026-10-05T00:22:15.890Z\n401 Unauthorized: Authorization header token has expired.\nRequest headers: {\"authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"}\nGateway path: /api/v2/customer/sync",
+    "environment_details": "Kong Gateway 3.4, Node.js JWT verifier"
+  },
+  {
+    "scenario_id": "DEMO-04",
+    "name": "Network Socket Timeout on High-Latency External API",
+    "synthetic_demonstration": true,
+    "title": "SocketTimeoutException reading from shipping rate provider API",
+    "input_type": "stack_trace",
+    "raw_content": "java.net.SocketTimeoutException: Read timed out after 15000ms\n\tat java.base/sun.nio.ch.NioSocketImpl.timedRead(NioSocketImpl.java:283)\n\tat java.base/sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:309)\n\tat java.base/sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:350)\n\tat java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:59)\n\tat org.apache.http.impl.io.SessionInputBufferImpl.fillBuffer(SessionInputBufferImpl.java:149)\n\tat org.apache.http.impl.io.ChunkedInputStream.getChunkSize(ChunkedInputStream.java:248)\n\tat org.apache.http.impl.io.ChunkedInputStream.read(ChunkedInputStream.java:175)\n\tat com.store.shipping.CarrierGatewayClient.fetchRates(CarrierGatewayClient.java:108)",
+    "environment_details": "Apache HttpClient 4.5.13, External Fedex Carrier Service"
+  },
+  {
+    "scenario_id": "DEMO-05",
+    "name": "OutOfMemory Heap Exhaustion in Document Indexing",
+    "synthetic_demonstration": true,
+    "title": "OutOfMemoryError: Java heap space during batch text terms indexing",
+    "input_type": "error_log",
+    "raw_content": "java.lang.OutOfMemoryError: Java heap space\n\tat java.base/java.util.Arrays.copyOf(Arrays.java:3512)\n\tat java.base/java.util.Arrays.copyOf(Arrays.java:3481)\n\tat java.base/java.util.ArrayList.grow(ArrayList.java:237)\n\tat java.base/java.util.ArrayList.addAll(ArrayList.java:588)\n\tat com.search.engine.IndexBatchWorker.aggregateTerms(IndexBatchWorker.java:215)\n\tat com.search.engine.IndexBatchWorker.run(IndexBatchWorker.java:94)\nDumping heap to java_pid19822.hprof ...\nHeap dump file created [2147483648 bytes in 4.120 secs]\nException in thread \"batch-worker-4\" java.lang.OutOfMemoryError: Java heap space",
+    "environment_details": "OpenJDK 64-Bit Server VM (build 21.0.1+12), -Xmx2g"
+  }
+]
