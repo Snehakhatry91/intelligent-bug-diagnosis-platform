@@ -231,10 +231,11 @@ intelligent-bug-diagnosis-platform/
 ├── reports/
 │   └── latest_evaluation.json# Machine-readable evaluation report
 ├── scripts/
-│   ├── ingest_historical_data.py # Ingestion & vector indexing pipeline
-│   ├── evaluate_agents.py        # Empirical evaluation benchmark
-│   ├── run_demo_scenarios.py     # 5 synthetic demo scenarios runner
-│   └── verify_project.py         # 8-step comprehensive reproducibility check
+│   ├── validate_historical_data.py # Historical dataset integrity & provenance validator
+│   ├── ingest_historical_data.py   # Ingestion & vector indexing pipeline
+│   ├── evaluate_agents.py          # Empirical evaluation benchmark
+│   ├── run_demo_scenarios.py       # 5 synthetic demo scenarios runner
+│   └── verify_project.py           # 11-step master reproducibility check
 ├── frontend/
 │   ├── src/pages/            # Dashboard, Submit, Findings, Analytics, KB, Evaluation
 │   └── src/api/client.ts     # Typed API client
@@ -250,10 +251,13 @@ intelligent-bug-diagnosis-platform/
 git clone https://github.com/Snehakhatry91/intelligent-bug-diagnosis-platform.git
 cd intelligent-bug-diagnosis-platform
 
-# 2. Install Python dependencies
+# 2. Configure environment (optional custom settings)
+cp .env.example .env
+
+# 3. Install Python dependencies
 pip install -r requirements.txt
 
-# 3. Install Frontend dependencies
+# 4. Install Frontend dependencies
 cd frontend
 npm install
 cd ..
@@ -261,19 +265,24 @@ cd ..
 
 ## Running the System
 
-### Step 1: Ingest Historical Knowledge Base
+### Step 1: Validate Historical Knowledge Base Integrity
+```bash
+python scripts/validate_historical_data.py
+```
+
+### Step 2: Ingest Historical Defects & Build Vector Index
 ```bash
 python scripts/ingest_historical_data.py
 ```
 
-### Step 2: Start Backend Server
+### Step 3: Start Backend Server
 ```bash
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 - API Docs: `http://localhost:8000/docs`
 - Health: `http://localhost:8000/health`
 
-### Step 3: Start Frontend Dev Server
+### Step 4: Start Frontend Dev Server
 ```bash
 cd frontend
 npm run dev
@@ -287,7 +296,7 @@ npm run dev
 ```bash
 python -m pytest tests -v
 ```
-**Status: 25 passed in 15.6s (100% Pass Rate)**
+**Status: 25 passed (100% Pass Rate)**
 
 ---
 

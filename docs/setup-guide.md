@@ -38,18 +38,25 @@
 
 ---
 
-## 3. Data Ingestion & Vector Index Initialization
+## 3. Data Validation, Ingestion & Vector Index Initialization
 
-Before running the platform, populate the historical defect database and build the 384-dimensional dense semantic vector index:
-```bash
-python scripts/ingest_historical_data.py
-```
-This script performs:
-1. Schema creation in `backend/bug_diagnosis.db`
-2. Ingestion of authentic Mozilla, Apache, and Eclipse defects from `data/*.json`
+Before running the platform, validate dataset integrity, populate the historical defect database, and build the 384-dimensional dense semantic vector index:
+
+1. **Validate Historical Data Integrity & Provenance**:
+   ```bash
+   python scripts/validate_historical_data.py
+   ```
+
+2. **Ingest Verified Records & Build Vector Index**:
+   ```bash
+   python scripts/ingest_historical_data.py
+   ```
+This pipeline performs:
+1. Integrity and provenance validation across Mozilla, Apache, and Eclipse records
+2. Schema creation and refresh in `backend/bug_diagnosis.db`
 3. Semantic text chunking
-4. 384-dimensional L2-normalized embedding generation
-5. Vector index persistence to `rag/vector_index.pkl`
+4. 384-dimensional L2-normalized embedding generation using `sentence-transformers/all-MiniLM-L6-v2`
+5. Vector index persistence to `rag/vector_index.pkl` with versioning metadata
 
 ---
 

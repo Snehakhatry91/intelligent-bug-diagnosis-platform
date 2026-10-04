@@ -87,7 +87,7 @@ Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-tr
 ## 5. Deployment Status
 - **Frontend Production Bundle**: Built via `npm run build` in 0.63s (`dist/index.html`, `dist/assets/index-BdrJ6YqN.js`, `dist/assets/index-ojam9d8l.css`).
 - **Local & Open-Source**: Completely locally runnable with zero external API dependencies or paid services.
-- **Reproducibility Verification**: Verified via `python scripts/verify_project.py` with 100% PASS across all 8 quality steps.
+- **Reproducibility Verification**: Verified via `python scripts/verify_project.py` with 100% PASS across all 11 quality steps.
 
 ---
 
@@ -105,7 +105,12 @@ Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-tr
 
 ## 8. Exact Execution Commands
 
-### Ingestion & Vector Index Initialization
+### Step 1: Historical Data Validation
+```bash
+python scripts/validate_historical_data.py
+```
+
+### Step 2: Ingestion & Vector Index Initialization
 ```bash
 python scripts/ingest_historical_data.py
 ```

@@ -153,11 +153,11 @@ async def run_ingestion():
     print(f"[5/5] Saved vector index to: {settings.VECTOR_INDEX_PATH}")
     print("=" * 65)
     print("INGESTION SUCCESS SUMMARY")
-    print(f"Verified Defects Ingested: {len(all_records)}")
-    print(f"Total Chunks Indexed:      {total_chunks}")
-    print(f"Embedding Model:           {EMBEDDING_MODEL_NAME}")
-    print(f"Embedding Dimension:       {EMBEDDING_DIMENSION}")
-    print(f"Metric:                    {EMBEDDING_METRIC}")
+    print(f"Historical records:  {len(all_records)}")
+    print(f"Embedding model:     {EMBEDDING_MODEL_NAME}")
+    print(f"Embedding dimension: {EMBEDDING_DIMENSION}")
+    print(f"Metric:              {EMBEDDING_METRIC}")
+    print("Vector index:        created successfully")
     print("=" * 65)
 
 

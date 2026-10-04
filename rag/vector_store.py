@@ -83,12 +83,15 @@ class VectorStore:
     def save(self) -> None:
         """Persist vector index and metadata to disk."""
         os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
+        from datetime import datetime, timezone
         data = {
             "metadata": {
                 "embedding_model": EMBEDDING_MODEL_NAME,
                 "embedding_dimension": EMBEDDING_DIMENSION,
                 "metric": EMBEDDING_METRIC,
                 "chunk_count": len(self.chunks),
+                "kb_version": "1.0.0",
+                "created_at": datetime.now(timezone.utc).isoformat(),
             },
             "chunks": self.chunks,
             "embeddings": self.embeddings,
@@ -104,9 +107,15 @@ class VectorStore:
                 with open(self.index_path, "rb") as f:
                     data = pickle.load(f)
                     metadata = data.get("metadata", {})
-                    # Ensure compatibility: if index was created with older hashed model, ignore it
-                    if metadata.get("embedding_model") != EMBEDDING_MODEL_NAME:
-                        print(f"[VectorStore] Notice: Vector index was built with a different model ({metadata.get('embedding_model')}). Ingestion required.")
+                    # Ensure compatibility: if index was created with different model or dimension, reject it
+                    if (
+                        metadata.get("embedding_model") != EMBEDDING_MODEL_NAME
+                        or metadata.get("embedding_dimension") != EMBEDDING_DIMENSION
+                    ):
+                        print(
+                            f"[VectorStore] Incompatible vector index detected ({metadata.get('embedding_model')}, {metadata.get('embedding_dimension')} dims). "
+                            "Re-run:\npython scripts/ingest_historical_data.py"
+                        )
                         self.chunks = []
                         self.embeddings = None
                         return False
