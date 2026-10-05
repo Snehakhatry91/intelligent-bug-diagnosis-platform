@@ -127,16 +127,29 @@ async def get_diagnosis_result(
     submission_id: str,
     db: AsyncSession = Depends(get_db)
 ):
-    """Retrieve full canonical BugAnalysisContext for a previously analyzed submission."""
+    """
+    Retrieve full canonical BugAnalysisContext for a submission.
+    If the submission has already been diagnosed, returns the persisted record.
+    If the submission exists but has not been diagnosed yet, executes diagnosis on-demand.
+    """
     q = select(AnalysisResultRecord).where(AnalysisResultRecord.submission_id == submission_id)
     res = await db.execute(q)
     record = res.scalar_one_or_none()
 
-    if not record:
+    if record:
+        context_dict = json.loads(record.canonical_context_json)
+        return BugAnalysisContext.model_validate(context_dict)
+
+    # Check if the bug submission exists in the database
+    sub_query = select(BugSubmission).where(BugSubmission.id == submission_id)
+    sub_res = await db.execute(sub_query)
+    submission = sub_res.scalar_one_or_none()
+
+    if not submission:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No diagnosis record exists for submission '{submission_id}'."
+            detail=f"Bug submission '{submission_id}' not found."
         )
 
-    context_dict = json.loads(record.canonical_context_json)
-    return BugAnalysisContext.model_validate(context_dict)
+    # Submission exists but diagnosis has not been executed yet; run on-demand
+    return await run_bug_diagnosis(submission_id=submission_id, db=db)

@@ -51,19 +51,16 @@ export const AnalysisResultsPage: React.FC<AnalysisResultsProps> = ({
       setLoading(true);
       setError(null);
       try {
-        // Try getting existing diagnosis first
-        try {
-          const existing = await api.getDiagnosis(submissionId);
-          setContext(existing);
-          setLoading(false);
-          return;
-        } catch {
-          // If not diagnosed yet, run diagnosis
-          const result = await api.runDiagnosis(submissionId);
-          setContext(result);
-        }
+        const result = await api.getDiagnosis(submissionId);
+        setContext(result);
       } catch (err: any) {
-        setError(err.message || 'Failed to retrieve diagnosis');
+        // Fallback to explicit runDiagnosis endpoint if needed
+        try {
+          const runResult = await api.runDiagnosis(submissionId);
+          setContext(runResult);
+        } catch (runErr: any) {
+          setError(runErr.message || err.message || 'Failed to retrieve diagnosis');
+        }
       } finally {
         setLoading(false);
       }

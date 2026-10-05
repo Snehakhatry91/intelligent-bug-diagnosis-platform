@@ -62,6 +62,90 @@ async def test_submit_and_diagnose_pipeline_api():
 
 
 @pytest.mark.asyncio
+async def test_submit_and_immediate_get_diagnosis_flow():
+    """
+    Validates canonical frontend workflow:
+    1. POST /api/submissions (creates bug submission)
+    2. Immediate GET /api/diagnosis/{submission_id} (executes and returns canonical diagnosis)
+    3. Confirms real outputs from all 6 pipeline components:
+       - Triage
+       - Log Analysis
+       - RAG evidence
+       - Duplicate Detection
+       - Root Cause
+       - Remediation
+    4. Subsequent GET returns persisted record without re-execution.
+    5. GET for non-existent submission returns 404.
+    """
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # 1. POST /api/submissions
+        payload = {
+            "title": "NullPointerException in authentication filter token validation",
+            "raw_content": (
+                "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke String.trim() on null\n"
+                "    at com.example.auth.AuthFilter.doFilter(AuthFilter.java:42)\n"
+                "    at com.example.web.FilterChain.proceed(FilterChain.java:18)"
+            ),
+            "input_type": "stack_trace"
+        }
+        create_resp = await client.post("/api/submissions", json=payload)
+        assert create_resp.status_code == 201
+        sub_id = create_resp.json()["id"]
+
+        # 2. Immediate GET /api/diagnosis/{sub_id} (canonical diagnosis request)
+        diag_resp = await client.get(f"/api/diagnosis/{sub_id}")
+        assert diag_resp.status_code == 200
+        data = diag_resp.json()
+
+        # 3. Verify valid JSON and core properties
+        assert data["submission_id"] == sub_id
+
+        # 4. Verify outputs from all 6 agents/components:
+        # Triage
+        assert data["triage"] is not None
+        assert data["triage"]["severity"] in ["Critical", "High", "Medium", "Low"]
+        assert data["triage"]["priority"] in ["High", "Medium", "Low"]
+        assert data["triage"]["confidence"] > 0
+
+        # Log Analysis
+        assert data["log_analysis"] is not None
+        assert data["log_analysis"]["exception_type"] == "java.lang.NullPointerException"
+        assert data["log_analysis"]["failure_point"] is not None
+        assert len(data["log_analysis"]["stack_frames"]) >= 1
+
+        # RAG Evidence
+        assert "rag_retrieval" in data
+        assert isinstance(data["rag_retrieval"], list)
+
+        # Duplicate Detection
+        assert data["duplicate_detection"] is not None
+        assert isinstance(data["duplicate_detection"]["is_duplicate"], bool)
+        assert "duplicate_threshold" in data["duplicate_detection"]
+
+        # Root Cause
+        assert data["root_cause"] is not None
+        assert len(data["root_cause"]["hypothesis"]) > 0
+        assert data["root_cause"]["confidence"] > 0
+
+        # Remediation
+        assert data["remediation"] is not None
+        assert len(data["remediation"]["action"]) > 0
+        assert len(data["remediation"]["recommended_tests"]) > 0
+
+        # 5. Subsequent GET returns persisted record
+        cached_resp = await client.get(f"/api/diagnosis/{sub_id}")
+        assert cached_resp.status_code == 200
+        cached_data = cached_resp.json()
+        assert cached_data["submission_id"] == sub_id
+        assert cached_data["triage"]["severity"] == data["triage"]["severity"]
+
+        # 6. GET non-existent submission returns 404
+        missing_resp = await client.get("/api/diagnosis/00000000-0000-0000-0000-000000000000")
+        assert missing_resp.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_historical_defects_api():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:

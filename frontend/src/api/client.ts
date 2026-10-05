@@ -164,65 +164,73 @@ export interface KBEntryResponse {
   vector_indexed: boolean;
 }
 
+async function handleResponse<T>(res: Response, defaultErrorMsg: string): Promise<T> {
+  if (!res.ok) {
+    let errorDetail = '';
+    try {
+      const text = await res.text();
+      try {
+        const json = JSON.parse(text);
+        errorDetail = json.detail || json.message || json.error || text;
+      } catch {
+        errorDetail = text.trim();
+      }
+    } catch {
+      errorDetail = res.statusText;
+    }
+    throw new Error(errorDetail || `${defaultErrorMsg} (HTTP ${res.status})`);
+  }
+  try {
+    return (await res.json()) as T;
+  } catch {
+    throw new Error(`Invalid JSON response from server (HTTP ${res.status})`);
+  }
+}
+
 export const api = {
   // Health
-  getHealth: async () => {
+  getHealth: async (): Promise<any> => {
     const res = await fetch('/health');
-    return res.json();
+    return handleResponse<any>(res, 'Health check failed');
   },
 
   // Submissions
-  submitBugText: async (payload: { title: string; raw_content: string; input_type?: string; environment_details?: string }) => {
+  submitBugText: async (payload: { title: string; raw_content: string; input_type?: string; environment_details?: string }): Promise<SubmissionResponse> => {
     const res = await fetch(`${API_BASE}/submissions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Submission failed');
-    }
-    return res.json() as Promise<SubmissionResponse>;
+    return handleResponse<SubmissionResponse>(res, 'Submission failed');
   },
 
-  submitBugFile: async (formData: FormData) => {
+  submitBugFile: async (formData: FormData): Promise<SubmissionResponse> => {
     const res = await fetch(`${API_BASE}/submissions/upload`, {
       method: 'POST',
       body: formData,
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Upload failed');
-    }
-    return res.json() as Promise<SubmissionResponse>;
+    return handleResponse<SubmissionResponse>(res, 'Upload failed');
   },
 
   listSubmissions: async (): Promise<SubmissionResponse[]> => {
     const res = await fetch(`${API_BASE}/submissions`);
-    return res.json();
+    return handleResponse<SubmissionResponse[]>(res, 'Failed to list submissions');
   },
 
   getSubmission: async (id: string): Promise<SubmissionResponse> => {
     const res = await fetch(`${API_BASE}/submissions/${id}`);
-    return res.json();
+    return handleResponse<SubmissionResponse>(res, 'Failed to fetch submission');
   },
 
   // Diagnosis
   runDiagnosis: async (submissionId: string): Promise<BugAnalysisContext> => {
     const res = await fetch(`${API_BASE}/diagnosis/run/${submissionId}`, { method: 'POST' });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Diagnosis failed');
-    }
-    return res.json();
+    return handleResponse<BugAnalysisContext>(res, 'Diagnosis failed');
   },
 
   getDiagnosis: async (submissionId: string): Promise<BugAnalysisContext> => {
     const res = await fetch(`${API_BASE}/diagnosis/${submissionId}`);
-    if (!res.ok) {
-      throw new Error('Diagnosis record not found');
-    }
-    return res.json();
+    return handleResponse<BugAnalysisContext>(res, 'Diagnosis record not found');
   },
 
   // Historical
@@ -232,7 +240,7 @@ export const api = {
     if (params?.severity) query.set('severity', params.severity);
     if (params?.search) query.set('search', params.search);
     const res = await fetch(`${API_BASE}/historical?${query.toString()}`);
-    return res.json();
+    return handleResponse<HistoricalDefect[]>(res, 'Failed to fetch historical defects');
   },
 
   searchHistorical: async (query: string, top_k = 5): Promise<HistoricalEvidenceItem[]> => {
@@ -241,24 +249,24 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query, top_k }),
     });
-    return res.json();
+    return handleResponse<HistoricalEvidenceItem[]>(res, 'Historical search failed');
   },
 
   // Analytics
   getAnalytics: async (): Promise<AnalyticsSummary> => {
     const res = await fetch(`${API_BASE}/analytics`);
-    return res.json();
+    return handleResponse<AnalyticsSummary>(res, 'Failed to fetch analytics');
   },
 
   getEvaluationMetrics: async (): Promise<any> => {
     const res = await fetch(`${API_BASE}/analytics/evaluation`);
-    return res.json();
+    return handleResponse<any>(res, 'Failed to fetch evaluation metrics');
   },
 
   // Knowledge Base
   listKBEntries: async (): Promise<KBEntryResponse[]> => {
     const res = await fetch(`${API_BASE}/knowledge-base`);
-    return res.json();
+    return handleResponse<KBEntryResponse[]>(res, 'Failed to fetch knowledge base entries');
   },
 
   promoteVerifiedBug: async (payload: {
@@ -273,11 +281,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Promotion failed');
-    }
-    return res.json();
+    return handleResponse<KBEntryResponse>(res, 'Promotion failed');
   },
 };
 
