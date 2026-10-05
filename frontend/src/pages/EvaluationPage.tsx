@@ -71,7 +71,7 @@ export const EvaluationPage: React.FC = () => {
           Empirical Agent Evaluation & Testing Benchmarks
         </h1>
         <p className="text-xs text-slate-400 mt-1">
-          Measured against 10 ground-truth defect scenarios using local SentenceTransformer (<code className="text-cyan-300">all-MiniLM-L6-v2</code>). Every metric is computed strictly from actual model outputs without synthetic fabrication.
+          Measured on the project's 10-case internal validation benchmark using local SentenceTransformer (<code className="text-cyan-300">all-MiniLM-L6-v2</code>). Evaluated strictly from actual pipeline outputs to verify functional correctness.
         </p>
       </div>
 

@@ -100,7 +100,7 @@ class BugAnalysisContext(BaseModel):
 | `issue_id` | VARCHAR(100) PRIMARY KEY | Provenance issue ID (e.g. `MOZ-12870`, `KAFKA-10134`, `ECLIPSE-3322`) |
 | `project` | VARCHAR(100) | Project name (e.g. `Mozilla`, `Apache Kafka`, `Eclipse Platform`) |
 | `source` | VARCHAR(100) | Upstream bug tracker (`Mozilla Bugzilla`, `Apache Jira`, `Eclipse Bugzilla`) |
-| `title` | VARCHAR(255) | Authentic defect title from upstream tracker |
+| `title` | VARCHAR(255) | Defect title from upstream tracker |
 | `description` | TEXT | Description and failure details |
 | `component` | VARCHAR(100) | Subsystem name |
 | `severity` | VARCHAR(50) | `Critical`, `High`, `Medium`, `Low` |

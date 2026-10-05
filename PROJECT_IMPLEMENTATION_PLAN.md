@@ -75,7 +75,7 @@ The system addresses the four major bottlenecks in modern defect resolution:
 ```
 
 1. **Module 1: Bug Submission Module:** Ingests direct text, stack traces, logs, and files (`.txt`, `.log`, `.md`, `.json`, max 5MB). Null-byte sanitization, zero-execution security policy, UUIDv4 generation, ISO-8601 UTC timestamping.
-2. **Module 2: Historical Defect Knowledge Base & RAG Pipeline:** Authentic defect records from Mozilla Firefox, Apache Software Foundation (Tomcat, Spark, Kafka, Lucene, Cassandra), and Eclipse IDE (JDT, Platform, Equinox, SWT). Domain chunking, 384-dimensional dense semantic vector indexing, cosine similarity.
+2. **Module 2: Historical Defect Knowledge Base & RAG Pipeline:** Curated defect records with source provenance from Mozilla Firefox, Apache Software Foundation (Tomcat, Spark, Kafka, Lucene, Cassandra), and Eclipse IDE (JDT, Platform, Equinox, SWT). Domain chunking, 384-dimensional dense semantic vector indexing, cosine similarity.
 3. **Module 3: Multi-Agent Orchestration:** Specialized asynchronous DAG agents:
    - *Triage Agent:* Severity, Priority, Subsystem, and empirical confidence score.
    - *Log Analysis Agent:* Deterministic regex/AST grammar parser extracting exception class, failure point, affected method, and key log signals.

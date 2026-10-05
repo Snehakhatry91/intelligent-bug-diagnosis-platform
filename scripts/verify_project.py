@@ -4,7 +4,7 @@ Single Comprehensive Reproducibility and Quality Gate Check
 Validates all aspects of the Intelligent Bug Diagnosis Platform:
 Step 1: Environment (Python 3.10+)
 Step 2: Dependencies Availability
-Step 3: Historical KB Data Integrity (Provenance & Authenticity)
+Step 3: Historical KB Data Integrity (Source Provenance & Curation)
 Step 4: Embedding Model (all-MiniLM-L6-v2) & Dimension (384)
 Step 5: Vector Index Compatibility & Versioning
 Step 6: RAG Semantic Retrieval Test

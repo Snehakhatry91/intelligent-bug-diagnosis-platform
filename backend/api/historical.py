@@ -1,6 +1,6 @@
 """
 Historical Defect Knowledge Base API Endpoints
-Provides search, filtering, and retrieval of authentic Mozilla, Apache, and Eclipse defects.
+Provides search, filtering, and retrieval of curated Mozilla, Apache, and Eclipse defects.
 """
 
 from typing import List, Optional
@@ -58,7 +58,7 @@ async def get_historical_defect(
     issue_id: str,
     db: AsyncSession = Depends(get_db)
 ):
-    """Retrieve single historical defect by authentic upstream issue ID."""
+    """Retrieve single historical defect by upstream issue ID."""
     q = select(HistoricalDefect).where(HistoricalDefect.issue_id == issue_id)
     res = await db.execute(q)
     defect = res.scalar_one_or_none()

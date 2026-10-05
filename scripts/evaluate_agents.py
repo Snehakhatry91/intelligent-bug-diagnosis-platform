@@ -169,11 +169,11 @@ async def run_evaluation():
         json.dump(metrics_payload, f, indent=2)
     print(f"[OK] Saved machine-readable metrics to: {json_report_path}")
 
-    # 3. Write human-readable markdown evaluation report
     report_content = f"""# Empirical Agent Evaluation & Benchmark Report
 
 ## 1. Evaluation Methodology
-- **Validation Dataset**: Labeled ground truth across {total_cases} distinct software defects in `data/validation_dataset.json`.
+- **Validation Dataset**: Labeled ground truth across {total_cases} distinct software defects in `data/validation_dataset.json` (internal validation benchmark).
+- **Benchmark Scope**: Evaluated on the project's {total_cases}-case internal validation dataset. These results reflect prototype performance on this specific test suite and are not presented as statistically representative of large-scale production environments.
 - **Ecosystems Tested**: Mozilla Bugzilla, Apache Jira, Eclipse Bugzilla, and novel application errors.
 - **Evaluation Rule**: Metrics are calculated solely from actual model predictions compared against ground truth labels. No synthetic figures or fabricated metrics are reported.
 - **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions, cosine similarity).

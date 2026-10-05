@@ -18,7 +18,7 @@ An autonomous software engineering diagnostic platform that accelerates defect t
 
 Modern software development teams face severe operational bottlenecks when triaging, diagnosing, and resolving production defects. Software bug reports are often incomplete, duplicate filings go unnoticed, and root-cause analyses require extensive manual investigation across complex distributed architectures.
 
-The **Intelligent Bug Diagnosis Platform** automates this pipeline using deterministic heuristics, a specialized multi-agent directed acyclic graph (DAG), and Retrieval-Augmented Generation (RAG) backed by real semantic embeddings over verified open-source defect repositories. The system is designed to be 100% locally runnable, cost-free, and reproducible without external paid APIs.
+The **Intelligent Bug Diagnosis Platform** combines transformer-based semantic retrieval with deterministic heuristic reasoning for reproducible offline diagnosis. Optional local Ollama-based LLM assistance can be configured where supported. The system is designed to be 100% locally runnable, cost-free, and reproducible without external paid APIs.
 
 ---
 
@@ -36,7 +36,7 @@ The **Intelligent Bug Diagnosis Platform** automates this pipeline using determi
 
 - **Multi-Agent Orchestration**: Five specialized agents executing in a canonical pipeline with graceful fault isolation.
 - **Deterministic Log Analysis**: Deterministic AST and regex parser extracting exception types, failing frames, and file paths across Java, Python, Node.js, and Unix signals without hallucinated frames.
-- **Curated Historical Knowledge Base**: Provenance-linked historical defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with authentic upstream URLs and project-curated resolution summaries.
+- **Curated Historical Knowledge Base**: Provenance-linked historical defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with verified upstream URLs and project-curated resolution summaries.
 - **Dense Semantic Embeddings**: Powered by local open-source `sentence-transformers/all-MiniLM-L6-v2` generating 384-dimensional unit vectors.
 - **Single Centralized Similarity Policy**: Exact cosine similarity with unified threshold gating:
   - $\ge 0.82$: **Likely Duplicate**
@@ -47,6 +47,7 @@ The **Intelligent Bug Diagnosis Platform** automates this pipeline using determi
 - **Knowledge Base Growth**: Human-in-the-loop candidate promotion workflow before new defects enter the active vector index.
 - **Reconciled Analytics Telemetry**: Mathematical integrity checks ensuring sum of category distributions equals total population ($\sum Counts \equiv Total$).
 - **Offline & Reproducible**: Fully local execution; no API keys required for core functionality.
+- **Deterministic Reasoning with Optional LLM**: Default signal/rule-based reasoning for 100% offline reproducibility, with optional local open-weight Ollama (`llama3:8b`) integration where configured.
 
 ---
 
@@ -129,6 +130,9 @@ Evidence Threshold Filtering (>= 0.45)
 Top-K Historical Evidence Matches
 ```
 
+- **Current Evaluation Implementation**: For the current evaluation prototype, historical defect embeddings are stored in a persistent local vector index (`rag/vector_index.pkl`) and compared using cosine similarity via NumPy.
+- **Production Scaling Option**: The architecture can be migrated to PostgreSQL/pgvector or another vector database (such as Qdrant or Milvus) for larger-scale deployment.
+
 ---
 
 ## Historical Knowledge Base
@@ -138,7 +142,7 @@ The platform ships with curated, provenance-linked public defects sourced from t
 - **Apache Jira**: Kafka consumer rebalances, Cassandra SSTable OOMs, and HttpComponents socket timeouts (`KAFKA-10134`, `KAFKA-897`, `CASSANDRA-19564`, `HTTPCLIENT-2099`, `CASSANDRA-2189`).
 - **Eclipse Bugzilla**: Workbench deadlocks, build NPEs, and repository authentication errors (`ECLIPSE-3322`, `ECLIPSE-11303`, `ECLIPSE-4869`, `ECLIPSE-3128`, `ECLIPSE-5226`).
 
-Each historical record contains authentic provenance:
+Each historical record contains verified source provenance:
 ```json
 {
   "id": "MOZ-12870",
@@ -394,7 +398,7 @@ Overall           : PASS
 
 ## Evaluation Results
 
-*Measured from live execution of `scripts/evaluate_agents.py` recorded in `reports/latest_evaluation.json`:*
+*Evaluation on the project's 10-case internal validation dataset (recorded in reports/latest_evaluation.json via scripts/evaluate_agents.py):*
 
 | Metric | Empirical Value | Sample Size | Derivation |
 | :--- | :--- | :--- | :--- |
@@ -423,6 +427,7 @@ Overall           : PASS
 4. **Duplicate Recall Trade-off**: Under strict thresholding ($\ge 0.82$), precision is 100% (zero false duplicates), but recall is 60% on edge cases with divergent phrasing.
 5. **Log Obfuscation**: The deterministic parser expects unminified stack traces; minified client JavaScript or obfuscated bytecode requires source-map / ProGuard de-obfuscation.
 6. **Synthetic Demo Scenarios**: The five demo scenarios are explicitly synthetic test cases designed to exercise the complete pipeline.
+7. **Internal Validation Benchmark**: The empirical evaluation uses an internal 10-case validation benchmark designed to verify functional pipeline correctness rather than representing large-scale statistical production surveys.
 
 ---
 

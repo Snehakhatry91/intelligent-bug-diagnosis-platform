@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Intelligent Bug Diagnosis Platform - Historical Defect Data Validation Script
-Validates data integrity, provenance completeness, and authenticity of historical defects.
+Validates data integrity, source provenance completeness, and curation standards of historical defects.
 Exits with code 0 on success, code 1 on validation failure.
 """
 

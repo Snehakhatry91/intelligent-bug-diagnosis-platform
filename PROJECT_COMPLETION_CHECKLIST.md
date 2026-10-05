@@ -21,7 +21,7 @@ Every requirement has been independently audited and marked as **PASS**, **PARTI
 | Enforce 5 MB file size limit | **PASS** | Validated in `backend/services/submission_service.py` & tested in `test_file_upload_enforces_5mb_ceiling` |
 | Null-byte & control-character sanitization | **PASS** | Implemented in `SubmissionService.sanitize_text` & tested in `test_sanitize_text_strips_null_bytes_and_control_chars` |
 | Zero-execution policy for uploaded files | **PASS** | Files are parsed strictly as UTF-8 text streams; zero code execution |
-| Build Historical Defect Knowledge Base (Mozilla, Apache, Eclipse) | **PASS** | 15 authentic defect records in `data/historical_bugs.json`, `data/mozilla_bugs.json`, `data/apache_bugs.json`, `data/eclipse_bugs.json` |
+| Build Historical Defect Knowledge Base (Mozilla, Apache, Eclipse) | **PASS** | 15 curated defect records with source provenance in `data/historical_bugs.json`, `data/mozilla_bugs.json`, `data/apache_bugs.json`, `data/eclipse_bugs.json` |
 | Dataset download instructions & sample distinction | **PASS** | Documented in `data/DATASET_INSTRUCTIONS.md` |
 | Build initial RAG pipeline with 384-dim dense embeddings | **PASS** | Implemented in `rag/embedder.py` (384-dim SentenceTransformer `all-MiniLM-L6-v2`) and `rag/vector_store.py` |
 | Single centralized similarity policy | **PASS** | Centrally defined in `backend/config.py` (0.82 duplicate, 0.65 related, 0.45 weak) |

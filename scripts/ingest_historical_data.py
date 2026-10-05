@@ -34,7 +34,7 @@ VALID_PROJECTS = {"Mozilla", "Apache", "Eclipse"}
 
 
 def validate_record_provenance(record: dict, record_idx: int, filename: str) -> None:
-    """Validate that a historical record conforms to authentic provenance standards."""
+    """Validate that a historical record conforms to curated provenance standards."""
     issue_id = record.get("issue_id") or record.get("id")
     if not issue_id:
         raise ValueError(f"[{filename} record #{record_idx}] Missing issue_id / id field.")

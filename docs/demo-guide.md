@@ -23,7 +23,7 @@ This document outlines the exact 18-step evaluation demonstration flow for prese
 - Open `http://localhost:5173`. Point out the modern dark glassmorphism design, brand logo, and the green "Engine Online" indicator connected to `/health`.
 
 ### Step 2: Show Dashboard
-- Highlight the 5 top KPI cards: Total Submissions, Completed Diagnoses, Historical Knowledge (15 authentic records), Duplicate Rate, and Verified Solutions.
+- Highlight the 5 top KPI cards: Total Submissions, Completed Diagnoses, Historical Knowledge (15 curated records), Duplicate Rate, and Verified Solutions.
 - Point out the 5 Required Synthetic Demonstration Scenarios cards.
 
 ### Step 3: Submit a Bug
@@ -83,9 +83,10 @@ This document outlines the exact 18-step evaluation demonstration flow for prese
 - Return to Dashboard and click on **DEMO-02: Database Connection Pool Saturated Deadlock**.
 - Note the resulting **Critical Severity**, affected component (**Database / Persistence**), and non-blocking timeout fix.
 
-### Step 15: Demonstrate a Duplicate / Related Bug
+### Step 15: Demonstrate Novel Defect vs. Duplicate Detection
 - Return to Dashboard and click on **DEMO-03: JWT Bearer Authentication Token Expiration**.
-- Show that this scenario scores **88.7% similarity** against `TOMCAT-62310` and is correctly flagged as a **Likely Duplicate** (&ge; 82%).
+- Note the resulting **Medium Severity**, affected component (**Authentication / Security**), and header-normalization remediation.
+- To demonstrate duplicate detection, navigate to Submit Defect and paste an issue matching an indexed historical defect (such as `VAL-001` / `MOZ-12870` or `VAL-005` / `ECLIPSE-3322`). Show that it scores $\ge 0.82$ similarity against the historical index and is correctly flagged as a **Likely Duplicate** (&ge; 82%).
 
 ### Step 16: Show Knowledge Base Growth (Self-Improving Memory)
 - In the diagnosis view, click **Promote to Verified KB**.

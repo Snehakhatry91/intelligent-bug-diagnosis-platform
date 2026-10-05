@@ -8,7 +8,7 @@
 ---
 
 ## 1. Executive Summary
-Modern software engineering organizations handle thousands of defect reports and crash logs monthly. Manual triaging, duplicate identification, and root cause diagnosis consume up to 40% of developer effort. This project delivers an autonomous, multi-agent platform combining deterministic structural log analysis, 384-dimensional dense semantic vector retrieval (RAG) across authentic historical corpora (Mozilla, Apache, Eclipse), and strict anti-hallucination guardrails to diagnose software bugs and generate actionable fix recommendations.
+Modern software engineering organizations handle thousands of defect reports and crash logs monthly. Manual triaging, duplicate identification, and root cause diagnosis consume up to 40% of developer effort. This project delivers an autonomous, multi-agent platform combining deterministic structural log analysis, 384-dimensional dense semantic vector retrieval (RAG) across a curated, provenance-linked historical knowledge base (Mozilla, Apache, Eclipse), and strict anti-hallucination guardrails to diagnose software bugs and generate actionable fix recommendations.
 
 ---
 
@@ -38,7 +38,7 @@ Modern software engineering organizations handle thousands of defect reports and
 
 ## 3. Milestones Completion Summary
 
-- **Milestone 1 (Research, Submission & RAG)**: Complete. 5MB upload limit, null-byte sanitization, authentic Mozilla/Apache/Eclipse corpora ingestion, 384-dim dense embedder, and vector index persistence.
+- **Milestone 1 (Research, Submission & RAG)**: Complete. 5MB upload limit, null-byte sanitization, curated Mozilla/Apache/Eclipse corpora ingestion, 384-dim dense embedder, and vector index persistence.
 - **Milestone 2 (Triage, Log Analysis & Canonical Context)**: Complete. Deterministic multi-language parser, dynamic non-static triage outputs, strongly-typed Pydantic `BugAnalysisContext`, and multi-agent orchestrator.
 - **Milestone 3 (Root Cause, Duplicates & Enterprise UI)**: Complete. 4-tier root cause attribution, 0.82 duplicate cutoff gating, concrete code patches with unit test plans, and Vite React 18 / Tailwind / Lucide web interface.
 - **Milestone 4 (Analytics, KB Growth, Demos & Audit)**: Complete. Strictly reconciled charts, human-verified KB promotion, 5 synthetic demo scenarios, 25/25 automated pytest pass rate, and full technical documentation suite.
@@ -46,7 +46,7 @@ Modern software engineering organizations handle thousands of defect reports and
 ---
 
 ## 4. Empirical Evaluation Metrics
-Measured across 10 ground-truth validation cases (`data/validation_dataset.json`) using `scripts/evaluate_agents.py`:
+Measured on the project's 10-case internal validation dataset (`data/validation_dataset.json`) using `scripts/evaluate_agents.py`:
 - **Triage Severity Accuracy**: **80.0%** (8/10 correct)
 - **Triage Priority Accuracy**: **80.0%** (8/10 correct)
 - **Duplicate Detection Accuracy**: **80.0%** (8/10 correct)
@@ -56,5 +56,5 @@ Measured across 10 ground-truth validation cases (`data/validation_dataset.json`
 
 ---
 
-## 5. Conclusion & Production Readiness
-The platform demonstrates an end-to-end working implementation with real semantic vector search, deterministic log parsing, curated historical datasets, and actionable code-fix recommendations and automated test plans. The system is containerized with Docker Compose and ready for local or cloud deployment.
+## 5. Conclusion & Evaluation Readiness
+The platform demonstrates an end-to-end working implementation with real semantic vector search, deterministic log parsing, curated historical datasets, and actionable code-fix recommendations and automated test plans. The system is containerized with Docker Compose and ready for local or cloud evaluation.

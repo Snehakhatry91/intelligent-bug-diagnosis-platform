@@ -3,7 +3,7 @@
 **Project Title**: Creation of Intelligent Bug Diagnosis Platform with Fix Recommendation Assistance  
 **Evaluation Program**: Infosys Internship Evaluation Project  
 **Report Date**: 2026-10-05  
-**Final Status**: **PROJECT COMPLETE & PRODUCTION READY**
+**Final Status**: **PROJECT COMPLETE & EVALUATION READY**
 
 ---
 
@@ -12,22 +12,21 @@
 ### Full-Stack Architecture
 - **Backend**: FastAPI (Python 3.12.5), Pydantic v2 schemas, SQLAlchemy 2 async engine, SQLite/PostgreSQL, aiosqlite, Uvicorn.
 - **Frontend**: React 18, Vite 8, TypeScript, Tailwind CSS, Lucide React, Recharts with modern dark glassmorphism design.
-- **Multi-Agent DAG**:
+- **Five Specialized Agents**:
   - `Triage Agent`: Dynamic severity (Critical, High, Medium, Low), priority, component, confidence, and empirical reasoning.
   - `Log Analysis Agent`: Deterministic regex and structural parsing for Java, Python, Node.js, Go, and system crash signals.
-  - `RAG Retrieval Engine`: 384-dimensional dense semantic vector retrieval via SentenceTransformer (`sentence-transformers/all-MiniLM-L6-v2`) over historical defect corpora.
   - `Duplicate Detection Agent`: Enforces the single centralized similarity policy (&ge; 0.82 duplicate cutoff).
   - `Root Cause Agent`: Four-tier attribution (Observed Facts, Historical Evidence, AI Inference, Fix Recommendation).
   - `Remediation Agent`: Generates actionable engineering summaries, code patch snippets, and automated test suites.
-  - `Multi-Agent Orchestrator`: Coordinates sequential DAG execution with fault isolation and timing telemetries.
+  - *(Supported by `RAG Retrieval Engine` for 384-dimensional dense semantic vector search via `sentence-transformers/all-MiniLM-L6-v2` over `rag/vector_index.pkl`).*
 - **Data & Ingestion**:
-  - 15 genuinely verified public defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with full provenance and verified source URLs.
+  - 15 curated defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with verified source provenance URLs and project-curated resolution summaries.
   - Ingestion pipeline with validation, normalization, chunking, SentenceTransformer embedding, and vector indexing.
 - **Analytics & Knowledge Base Growth**:
   - Mathematically reconciled defect telemetry ($\sum Counts \equiv Total Submissions$).
   - Human-in-the-loop verification gate promoting confirmed resolutions into active vector memory.
 - **Synthetic Benchmarks**:
-  - 5 mandatory demonstration scenarios (NPE, DB Deadlock, JWT Expired, Network Timeout, OOM Heap Exhaustion).
+  - 5 mandatory synthetic demonstration scenarios (NPE, DB Deadlock, JWT Expired, Network Timeout, OOM Heap Exhaustion).
   - 10 ground-truth validation cases with confusion matrix calculations.
 
 ---
@@ -39,7 +38,7 @@ Command: `python -m pytest tests -v`
 - **Total Tests Executed**: 25
 - **Passed**: 25
 - **Failed**: 0
-- **Execution Time**: 15.6 seconds
+- **Execution Time**: ~15.6 seconds
 - **Pass Rate**: **100%**
 
 ### Breakdown by Test Suite:
@@ -54,7 +53,7 @@ Command: `python -m pytest tests -v`
 ---
 
 ## 3. Actual Evaluation Metrics
-Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-truth validation cases (`reports/latest_evaluation.json`):
+Measured on the project's 10-case internal validation dataset (`reports/latest_evaluation.json`) via `scripts/evaluate_agents.py`:
 - **Triage Severity Classification Accuracy**: **80.0%** (8 / 10 correct)
 - **Triage Priority Classification Accuracy**: **80.0%** (8 / 10 correct)
 - **Duplicate Detection Accuracy**: **80.0%** (8 / 10 correct)
@@ -72,7 +71,7 @@ Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-tr
 ---
 
 ## 4. Dataset & RAG Status
-- **Historical Corpora**: Genuinely verified public defects from Mozilla Bugzilla (`MOZ-12870`, `MOZ-120`, `MOZ-32992`, `MOZ-7531`, `MOZ-1434`), Apache Jira (`KAFKA-10134`, `KAFKA-897`, `CASSANDRA-19564`, `HTTPCLIENT-2099`, `CASSANDRA-2189`), and Eclipse Bugzilla (`ECLIPSE-3322`, `ECLIPSE-11303`, `ECLIPSE-4869`, `ECLIPSE-3128`, `ECLIPSE-5226`).
+- **Historical Corpora**: Curated, provenance-linked public defects from Mozilla Bugzilla (`MOZ-12870`, `MOZ-120`, `MOZ-32992`, `MOZ-7531`, `MOZ-1434`), Apache Jira (`KAFKA-10134`, `KAFKA-897`, `CASSANDRA-19564`, `HTTPCLIENT-2099`, `CASSANDRA-2189`), and Eclipse Bugzilla (`ECLIPSE-3322`, `ECLIPSE-11303`, `ECLIPSE-4869`, `ECLIPSE-3128`, `ECLIPSE-5226`).
 - **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (local execution).
 - **Vector Dimension**: 384 dimensions (L2-normalized unit vectors).
 - **Indexed Chunks**: 15 distinct semantic chunks indexed in `rag/vector_index.pkl`.
@@ -85,16 +84,18 @@ Measured from live execution of `scripts/evaluate_agents.py` across 10 ground-tr
 ---
 
 ## 5. Deployment Status
-- **Frontend Production Bundle**: Built via `npm run build` in 0.63s (`dist/index.html`, `dist/assets/index-BdrJ6YqN.js`, `dist/assets/index-ojam9d8l.css`).
+- **Frontend Production Bundle**: Built via `npm run build` cleanly (`dist/index.html`, `dist/assets/`).
 - **Local & Open-Source**: Completely locally runnable with zero external API dependencies or paid services.
 - **Reproducibility Verification**: Verified via `python scripts/verify_project.py` with 100% PASS across all 11 quality steps.
 
 ---
 
-## 6. Known Limitations
+## 6. Known Limitations & Architectural Notes
 - The fallback provider uses deterministic heuristic rules rather than calling an external LLM API when running offline.
-- SQLite with `aiosqlite` is the default local store; enterprise multi-node deployment can configure PostgreSQL with `pgvector`.
+- **Current Evaluation Implementation:** The prototype uses a persistent local vector index (`rag/vector_index.pkl`) with NumPy-based cosine similarity and SQLite with `aiosqlite`.
+- **Production Scaling Option:** For enterprise multi-node deployment, the architecture can be migrated to PostgreSQL with `pgvector` or another distributed vector store (e.g., Qdrant).
 - Stack trace parsing currently supports unminified Java, Python, Node.js, and Go; obfuscated bytecode or minified bundles require source-map upload.
+- Evaluation metrics are measured on an internal 10-case validation benchmark designed for functional verification rather than large-scale production statistics.
 
 ---
 

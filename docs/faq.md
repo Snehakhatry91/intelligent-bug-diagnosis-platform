@@ -97,7 +97,7 @@ For an evaluation prototype and hermetic CI pipelines, storing embeddings in a l
 Every active record in the historical knowledge base is validated via `scripts/validate_historical_data.py`:
 - Real public issue IDs from Mozilla Bugzilla, Apache Jira, or Eclipse Bugzilla.
 - Valid live upstream HTTP/HTTPS issue tracker URLs.
-- Authentic titles, descriptions, and component assignments matching upstream records.
+- Curated titles, descriptions, and component assignments linked to upstream records.
 - Verified status flag (`verified: true`) and explicit data type (`data_type: "historical"`).
 Records that cannot be genuinely verified against public bug trackers are excluded from the active KB.
 
@@ -108,11 +108,12 @@ Records that cannot be genuinely verified against public bug trackers are exclud
 2. **Deterministic Fallback Scope:** In offline mode without Ollama, causal hypotheses are drawn from deterministic heuristic templates rather than open-ended neural generation.
 3. **Log Obfuscation:** The log parser requires unminified stack traces; minified client JavaScript or obfuscated Android bytecode requires source-map / ProGuard de-obfuscation.
 4. **Duplicate Recall:** Under high semantic thresholding ($\ge 0.82$), duplicate precision is 100%, but recall is 60% on edge cases with divergent phrasing.
+5. **Internal Validation Benchmark:** The empirical evaluation uses a 10-case internal benchmark to verify pipeline correctness rather than representing large-scale statistical production surveys.
 
 ---
 
 ### 16. How were evaluation metrics calculated?
-Evaluation metrics are dynamically computed by executing `scripts/evaluate_agents.py` against 10 ground-truth test cases in `data/validation_dataset.json`. The script compares agent predictions against actual labels to compute:
+Evaluation metrics are dynamically computed by executing `scripts/evaluate_agents.py` on the 10-case internal validation dataset in `data/validation_dataset.json`. The script compares agent predictions against actual labels to compute:
 - **Severity Accuracy:** Correct Severity / Total Cases = 80.0% (8/10)
 - **Priority Accuracy:** Correct Priority / Total Cases = 80.0% (8/10)
 - **Duplicate Accuracy:** (TP + TN) / Total Cases = 80.0% (8/10)
@@ -137,7 +138,7 @@ To prevent memory pollution from unverified AI hypotheses, automated diagnoses d
 ---
 
 ### 19. Why are the five demos synthetic?
-The five demonstration scenarios (`DEMO-01` through `DEMO-05`) are explicitly synthetic test fixtures designed to stress-test the end-to-end pipeline across five archetypal software engineering failure modes (NullPointer, DB Connection Deadlock, JWT Expiration, Network Socket Timeout, JVM OutOfMemory). They are transparently marked with `data_type: "synthetic"` and `synthetic_demo: true` to prevent any confusion with historical defect records.
+The five demonstration scenarios (`DEMO-01` through `DEMO-05`) are synthetic cases created to exercise the complete diagnosis pipeline across five archetypal software engineering failure modes (NullPointer, DB Connection Deadlock, JWT Expiration, Network Socket Timeout, JVM OutOfMemory). They are transparently marked with `data_type: "synthetic"` and `synthetic_demo: true` to prevent any confusion with historical defect records.
 
 ---
 

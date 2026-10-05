@@ -41,5 +41,5 @@ Upon submission or selection from the Dashboard, the **Diagnosis Findings** page
 ---
 
 ## 4. Exploring Historical Defects & Analytics
-- **Historical Defects**: Search and filter authentic bug records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla by ecosystem and severity, or toggle **Vector Semantic Search** for dense similarity querying.
+- **Historical Defects**: Search and filter curated bug records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla by ecosystem and severity, or toggle **Vector Semantic Search** for dense similarity querying.
 - **Defect Analytics**: Review real-time charts of severity distributions, priority allocation, affected components, and recurring exception types. The dashboard features automated mathematical verification proving that all distribution counts reconcile to the total submitted population.

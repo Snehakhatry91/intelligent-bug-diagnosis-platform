@@ -14,7 +14,7 @@ Defect diagnosis requires distinct technical competencies that cannot be reliabl
 - Triage classification requires **domain impact modeling** and rule-based heuristic scoring.
 - Duplicate detection requires **dense vector geometry** using local SentenceTransformer embeddings and cosine similarity.
 - Root cause deduction requires **abductive reasoning grounded in empirical facts** and retrieved historical evidence.
-- Remediation requires **prescriptive code engineering** with concrete patch diffs and automated test specifications.
+- Remediation requires **actionable code-fix recommendations, example patches, and automated test plans** grounded in empirical root cause context.
 
 Decomposing the problem into specialized agents enables modular unit testing, isolated confidence calculation, predictable offline execution, and graceful degradation under partial failures.
 
@@ -120,7 +120,7 @@ Decomposing the problem into specialized agents enables modular unit testing, is
 - **Limitations:** In offline mode without Ollama, causal hypotheses are drawn from deterministic heuristic templates.
 
 ### 3.5 Remediation Agent
-- **Role:** Generates prescriptive engineering solutions, code patches, and test recommendations.
+- **Role:** Generates actionable code-fix recommendations, example patch diffs, and verification test specifications.
 - **Input:** `BugAnalysisContext` + root cause hypothesis + historical fix evidence.
 - **Processing:** Synthesizes actionable engineering recommendations, concrete patch diffs, and verification test specifications based on known architectural best practices and verified historical resolutions.
 - **Output:**
@@ -130,7 +130,7 @@ Decomposing the problem into specialized agents enables modular unit testing, is
   - `patch_diff`: Unified diff snippet containing concrete defensive guards or configuration updates.
   - `recommended_tests`: Structured list of verification test cases (unit, integration, concurrency) with descriptions.
 - **Evidence:** References retrieved historical fix summaries when available, or standard language idioms (e.g. defensive null checks, bounded thread pools).
-- **Limitations:** Generates targeted defensive guards and idiomatic patches; full architectural rewrites require human software engineers.
+- **Limitations:** Generates actionable fix recommendations, example code snippets/patches, and automated test plans rather than autonomously compiling or committing to production repositories; complex architectural rewrites require human software engineers.
 
 ---
 

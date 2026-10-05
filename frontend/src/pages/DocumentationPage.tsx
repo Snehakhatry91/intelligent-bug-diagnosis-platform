@@ -37,33 +37,33 @@ export const DocumentationPage: React.FC = () => {
 {`Bug Submission (Raw Text / Stack Trace / File Upload)
        │
        ▼
-[Stage 1: Triage Agent]
+[Agent 1: Triage Agent]
        ├── Classifies Severity (Critical, High, Medium, Low) & Priority
        └── Evaluates dynamic confidence and extracts empirical crash signals
        │
        ▼
-[Stage 2: Log Analysis Agent]
+[Agent 2: Log Analysis Agent]
        ├── Deterministic structural parsing of stack frames & lines
        └── Extracts exception type, error description, and failure point
        │
        ▼
-[Stage 3: RAG Retrieval Engine]
+[Supporting Service: RAG Retrieval Engine]
        ├── Generates 384-dimensional dense semantic query vectors
        └── Cosine search against Mozilla, Apache, & Eclipse historical corpora
        │
        ▼
-[Stage 4: Duplicate Detection Agent]
+[Agent 3: Duplicate Detection Agent]
        ├── Enforces single central similarity policy (>= 0.82 duplicate cutoff)
        └── Categorizes candidates as Duplicate, Related Issue, or Weak Match
        │
        ▼
-[Stage 5: Root Cause Agent]
+[Agent 4: Root Cause Agent]
        ├── Four-tier attribution: Observed Facts, Historical Evidence, Inference
        └── Formulates anti-hallucinated failure hypothesis
        │
        ▼
-[Stage 6: Remediation Agent]
-       └── Generates concrete code patch snippets and automated test plans`}
+[Agent 5: Remediation Agent]
+       └── Generates actionable code patch snippets and automated test plans`}
         </pre>
       </div>
 
@@ -151,10 +151,25 @@ export const DocumentationPage: React.FC = () => {
           The platform incorporates verified historical defect records from three major open-source ecosystems:
         </p>
         <ul className="list-disc list-inside space-y-1.5 text-slate-300">
-          <li><strong>Mozilla Bugzilla</strong>: Authentic crash reports from Firefox, Necko HTTP channel, and Spidermonkey JS.</li>
+          <li><strong>Mozilla Bugzilla</strong>: Curated crash records with source provenance from Firefox, Necko HTTP channel, and Spidermonkey JS.</li>
           <li><strong>Apache Software Foundation Jira</strong>: Concurrency, connection pool, and OOM issues from Kafka, Cassandra, Lucene, and Tomcat.</li>
           <li><strong>Eclipse Foundation Bugzilla</strong>: Deadlock, UI threading, and memory leak defects from Platform UI, JDT, and Equinox OSGi.</li>
         </ul>
+      </div>
+
+      {/* 5. Reasoning Engine & Vector Architecture */}
+      <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+        <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <Code className="w-4 h-4 text-amber-400" />
+          5. Reasoning Engine & Vector Architecture
+        </h2>
+        <p>
+          The platform combines transformer-based semantic retrieval with deterministic heuristic reasoning for reproducible offline diagnosis. Optional local Ollama-based LLM assistance (<code className="text-amber-300 font-mono">llama3:8b</code>) can be configured where supported.
+        </p>
+        <p className="text-slate-400">
+          <strong className="text-slate-200">Current Evaluation Implementation:</strong> Historical defect embeddings are stored in a persistent local vector index (<code className="text-cyan-300 font-mono">rag/vector_index.pkl</code>) and compared using cosine similarity via NumPy.<br />
+          <strong className="text-slate-200">Production Scaling Option:</strong> The decoupled vector interface can be migrated to PostgreSQL with pgvector or distributed vector databases (e.g. Qdrant) for enterprise deployments.
+        </p>
       </div>
     </div>
   );

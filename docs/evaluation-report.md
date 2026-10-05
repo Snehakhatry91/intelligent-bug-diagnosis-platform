@@ -1,7 +1,8 @@
 # Empirical Agent Evaluation & Benchmark Report
 
 ## 1. Evaluation Methodology
-- **Validation Dataset**: Labeled ground truth across 10 distinct software defects in `data/validation_dataset.json`.
+- **Validation Dataset**: Labeled ground truth across 10 distinct software defects in `data/validation_dataset.json` (internal validation benchmark).
+- **Benchmark Scope**: Evaluated on the project's 10-case internal validation dataset. These results reflect prototype performance on this specific test suite and are not presented as statistically representative of large-scale production environments.
 - **Ecosystems Tested**: Mozilla Bugzilla, Apache Jira, Eclipse Bugzilla, and novel application errors.
 - **Evaluation Rule**: Metrics are calculated solely from actual model predictions compared against ground truth labels. No synthetic figures or fabricated metrics are reported.
 - **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions, cosine similarity).
@@ -51,4 +52,4 @@
 ## 5. Anti-Hallucination & Evidence Policy Audit
 - **Grounding Rate**: All duplicate detections strictly adhered to the single central similarity policy (`DUPLICATE_THRESHOLD = 0.82`).
 - **Threshold Cutoff**: When query similarity fell below `EVIDENCE_THRESHOLD = 0.45`, the platform returned `"Insufficient historical evidence found"` rather than hallucinating false matches.
-- **Evaluation Date**: 2026-10-05 06:37:34 UTC
+- **Evaluation Date**: 2026-10-05 08:16:59 UTC

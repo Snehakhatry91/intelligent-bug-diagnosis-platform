@@ -5,7 +5,7 @@ The platform is designed for cloud-native deployment using Docker, Docker Compos
 
 ### Production Docker Compose Configuration
 The provided `docker-compose.yml` configures a complete three-tier architecture:
-1. **Database Service**: PostgreSQL 16 with `pgvector` extension enabled (`pgvector/pgvector:pg16`)
+1. **Database Service**: PostgreSQL 16 (`pgvector/pgvector:pg16` image prepared for relational storage and production scaling migration)
 2. **Backend Service**: FastAPI running under Uvicorn with Gunicorn process workers
 3. **Frontend Service**: NGINX serving the optimized production React bundle and proxying `/api` requests
 
@@ -45,8 +45,9 @@ docker-compose up --build -d
    - `RELATED_THRESHOLD=0.65`
    - `EVIDENCE_THRESHOLD=0.45`
 
-### C. Production Migration Path: PostgreSQL + pgvector
-- For enterprise-scale production deployment, the persistent local vector index can be migrated to a dedicated PostgreSQL database with `CREATE EXTENSION vector;` (e.g. Neon.tech, Supabase, or AWS RDS).
+### C. Vector Store Architecture & Production Scaling Option
+- **Current Evaluation Implementation:** The prototype uses a persistent local vector index (`rag/vector_index.pkl`) with NumPy-based cosine similarity for historical defect retrieval.
+- **Production Scaling Option:** For enterprise-scale production deployment, the local index architecture can be migrated to a dedicated PostgreSQL database with `CREATE EXTENSION vector;` (e.g. Neon.tech, Supabase, or AWS RDS) or distributed vector engines (such as Qdrant).
 
 ---
 

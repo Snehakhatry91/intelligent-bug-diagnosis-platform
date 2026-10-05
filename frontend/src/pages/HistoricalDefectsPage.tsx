@@ -60,7 +60,7 @@ export const HistoricalDefectsPage: React.FC = () => {
             Historical Defect Knowledge Base
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Authentic defect repository populated from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla ecosystems.
+            Curated defect repository with source provenance from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla ecosystems.
           </p>
         </div>
 

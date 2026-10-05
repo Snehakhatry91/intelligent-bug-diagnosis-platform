@@ -24,8 +24,8 @@ This platform ingests real-world, open-source defect records from the three cano
 ## 2. Distinction Between Real Historical Data vs. Synthetic Demo Scenarios
 
 In accordance with Infosys Evaluation Integrity Guidelines:
-- **Historical Defect Knowledge Base (`data/historical_bugs.json`)**: Contains **verifiable historical defects** with authentic issue IDs (e.g., `KAFKA-10134`, `MOZ-12870`, `ECLIPSE-3322`), genuine resolution descriptions, and real upstream source URLs.
-- **Sample Demonstration Scenarios (`tests/fixtures/demo_scenarios.json`)**: Explicitly labelled as **synthetic demonstration cases** designed to showcase the 5 mandatory failure modes (NPE, DB disconnect, JWT expiration, Network timeout, OOM heap exhaustion) through the full DAG without claiming to be historical records.
+- **Historical Defect Knowledge Base (`data/historical_bugs.json`)**: Contains **curated historical defect records with source provenance** linked to public upstream issue IDs (e.g., `KAFKA-10134`, `MOZ-12870`, `ECLIPSE-3322`) and verified upstream source URLs, with project-curated diagnostic and resolution summaries.
+- **Sample Demonstration Scenarios (`tests/fixtures/demo_scenarios.json`)**: Explicitly labelled as **synthetic demonstration cases** designed to showcase the 5 mandatory failure modes (NPE, DB disconnect, JWT expiration, Network timeout, OOM heap exhaustion) through the full pipeline without claiming to be historical records.
 
 ---
 

@@ -16,5 +16,5 @@
 | Sprint 3 | Day 11 | Vite React TypeScript strict checks failing on unescaped `>` in JSX text. | Replaced raw inequality symbols with valid HTML entities (`&gt;=`) and updated TypeScript app config. |
 | Sprint 4 | Day 2 | Potential discrepancy between submission totals and severity distributions. | Implemented automated population reconciliation assertions in `analytics_service.py` verifying $\sum Counts \equiv Total$. |
 | Sprint 4 | Day 6 | Pytest asyncio failing on async test fixture scopes. | Configured `pytest.ini` with `asyncio_mode = auto` and `asyncio_default_fixture_loop_scope = function`. |
-| Sprint 4 | Day 10 | Verification of 5 synthetic demo scenarios against authentic historical defect distinction. | Maintained separate fixture directory `tests/fixtures/demo_scenarios.json` clearly marked as synthetic demonstration data. |
+| Sprint 4 | Day 10 | Verification of 5 synthetic demo scenarios against curated historical defect distinction. | Maintained separate fixture directory `tests/fixtures/demo_scenarios.json` clearly marked as synthetic demonstration data. |
 | Sprint 4 | Day 14 | Preparing final demonstration and technical documentation. | Audited all endpoints, re-executed 25 unit/integration tests with 100% pass rate, and generated reports. |

@@ -2,7 +2,7 @@
 
 **Project Title**: Creation of Intelligent Bug Diagnosis Platform with Fix Recommendation Assistance  
 **Allowed Types**: Logical, User Interface, Maintainability, Standards, Others  
-**Rule**: Documents actual, authentic engineering defects encountered and resolved during system implementation and testing.
+**Rule**: Documents actual engineering defects encountered and resolved during system implementation and testing.
 
 | Sl No | Submitted By | Submitted Date | Description | Detected Sprint | Assigned To | Type Of Defect | Action Taken | Action Taken Date | Status | Remarks |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |

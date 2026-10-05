@@ -44,7 +44,7 @@ Raw Defect Repositories (Mozilla, Apache, Eclipse)
                    │
                    ▼
      Stage 2: Cleaning & Validation
-       - Validate authentic provenance via scripts/validate_historical_data.py
+       - Validate source provenance via scripts/validate_historical_data.py
        - Ensure non-empty description, real upstream URLs, verified=true
                    │
                    ▼
@@ -95,8 +95,18 @@ To prevent contradictory classifications across agents, the platform enforces **
 
 ## 6. Vector Store Implementation Architecture
 
-For the evaluation prototype, historical defect embeddings are stored in a persistent local vector index (`rag/vector_index.pkl`) and compared using cosine similarity via NumPy. This keeps the project fully local, reproducible, and cost-free while maintaining a clean architectural interface for future migration to `pgvector` or Qdrant for larger deployments.
+### Current Evaluation Implementation
+For the current evaluation prototype, historical defect embeddings are stored in a persistent local vector index (`rag/vector_index.pkl`) and compared using cosine similarity via NumPy. This keeps the project fully local, reproducible, and cost-free without requiring external vector database daemons.
 
-Key safeguards:
-- **Version Compatibility Check:** On load, `rag/vector_store.py` checks that the index metadata matches the current model (`all-MiniLM-L6-v2`) and dimension (`384`).
-- **Graceful Regeneration:** If the index is missing or incompatible, the system refuses to load stale embeddings and prompts the operator to run `python scripts/ingest_historical_data.py`.
+- **Storage Location**: `rag/vector_index.pkl`
+- **Embedding Matrix**: Normalized float32 matrix $\mathbf{V} \in \mathbb{R}^{15 \times 384}$
+- **Retrieval Mechanism**: In-memory matrix multiplication ($\mathbf{V} \mathbf{u}^\top$)
+- **Safeguards**:
+  - **Version Compatibility Check:** On load, `rag/vector_store.py` verifies that the index metadata matches the current model (`all-MiniLM-L6-v2`), dimension (`384`), and KB version.
+  - **Graceful Regeneration:** If the index is missing or incompatible, the system refuses to load stale embeddings and prompts the operator to run `python scripts/ingest_historical_data.py`.
+
+### Future Production Scaling Option
+The architecture can be migrated to PostgreSQL with `pgvector` or another production vector database (such as Qdrant or Milvus) for larger-scale enterprise deployments:
+- **Relational + Vector Hybrid**: PostgreSQL with `CREATE EXTENSION vector;` storing both structured defect metadata and HNSW/IVFFlat vector indexes.
+- **Distributed Sharding**: Dedicated vector search clusters handling millions of defect embeddings with horizontal replica scaling.
+- The `VectorStore` interface is cleanly decoupled, enabling drop-in migration without modifying agent reasoning logic.
