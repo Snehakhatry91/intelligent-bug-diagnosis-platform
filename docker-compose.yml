@@ -1,3 +1,16 @@
+# ==============================================================================
+# OPTIONAL / FUTURE DOCKER COMPOSE CONFIGURATION
+# ==============================================================================
+# NOTE: The primary evaluation and demo deployment path for this platform is:
+#   - Frontend: Vercel (Static SPA with /api rewrites configured via frontend/vercel.json)
+#   - Backend:  Render Web Service (FastAPI + persistent local vector index via render.yaml)
+#
+# This docker-compose.yml file serves as an optional/future architectural blueprint
+# for multi-container orchestration. To run this Compose stack, custom Dockerfiles
+# (backend/Dockerfile and frontend/Dockerfile) must be authored. For the evaluation
+# prototype, use Render + Vercel or local virtual environment execution.
+# ==============================================================================
+
 version: '3.8'
 
 services:

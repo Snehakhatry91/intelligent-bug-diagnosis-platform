@@ -52,4 +52,4 @@
 ## 5. Anti-Hallucination & Evidence Policy Audit
 - **Grounding Rate**: All duplicate detections strictly adhered to the single central similarity policy (`DUPLICATE_THRESHOLD = 0.82`).
 - **Threshold Cutoff**: When query similarity fell below `EVIDENCE_THRESHOLD = 0.45`, the platform returned `"Insufficient historical evidence found"` rather than hallucinating false matches.
-- **Evaluation Date**: 2026-10-05 08:16:59 UTC
+- **Evaluation Date**: 2026-10-05 08:42:05 UTC

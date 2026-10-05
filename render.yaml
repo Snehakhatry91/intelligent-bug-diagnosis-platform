@@ -1,0 +1,38 @@
+# ==============================================================================
+# Render Blueprint Specification
+# Project: Intelligent Bug Diagnosis Platform (Backend Web Service)
+# Evaluation & Demonstration Cloud Deployment
+# ==============================================================================
+
+services:
+  - type: web
+    name: intelligent-bug-diagnosis-backend
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python scripts/validate_historical_data.py && python scripts/ingest_historical_data.py"
+    startCommand: "python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "False"
+      - key: LLM_PROVIDER
+        value: fallback
+      - key: VECTOR_DIMENSION
+        value: "384"
+      - key: DUPLICATE_THRESHOLD
+        value: "0.82"
+      - key: RELATED_THRESHOLD
+        value: "0.65"
+      - key: WEAK_THRESHOLD
+        value: "0.45"
+      - key: EVIDENCE_THRESHOLD
+        value: "0.45"
+      - key: MAX_FILE_SIZE_BYTES
+        value: "5242880"
+      - key: PYTHON_VERSION
+        value: "3.13"
+      # To permit direct cross-origin browser requests from your deployed Vercel frontend,
+      # add your Vercel production origin to CORS_ORIGINS here or in the Render Dashboard:
+      # e.g.: - key: CORS_ORIGINS
+      #         value: "http://localhost:5173,https://<your-vercel-domain>.vercel.app"
