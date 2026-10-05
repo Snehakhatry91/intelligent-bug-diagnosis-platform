@@ -4,7 +4,7 @@
 - **Operating System**: Windows 10/11, macOS, or Linux
 - **Python**: Version 3.12 (Python 3.12.5 verified)
 - **Node.js**: Version 18+ (Node v22.19.0 verified) & npm 10+
-- **Database**: SQLite (default lightweight local engine) or PostgreSQL 15+ with `pgvector`
+- **Database**: SQLite (default lightweight local engine); optional PostgreSQL 15+ for containerized production
 
 ---
 
@@ -12,7 +12,7 @@
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-org/intelligent-bug-diagnosis-platform.git
+   git clone https://github.com/Snehakhatry91/intelligent-bug-diagnosis-platform.git
    cd intelligent-bug-diagnosis-platform
    ```
 
@@ -25,8 +25,6 @@
 3. **Install Python Dependencies**:
    ```bash
    pip install -r requirements.txt
-   # Or install key dependencies directly:
-   pip install fastapi uvicorn pydantic pydantic-settings sqlalchemy aiosqlite python-multipart pytest pytest-asyncio httpx numpy scikit-learn
    ```
 
 4. **Install Frontend Dependencies**:

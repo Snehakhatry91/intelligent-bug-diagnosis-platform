@@ -101,8 +101,8 @@ export const DashboardPage: React.FC<DashboardProps> = ({
             Intelligent Bug Diagnosis & Fix Recommendation
           </h1>
           <p className="text-slate-300 text-sm leading-relaxed mb-6">
-            Empowered by 6 specialized agents, RAG retrieval across Mozilla, Apache, and Eclipse defect repositories, 
-            and deterministic stack trace decompilation to isolate root causes and formulate production-grade fixes.
+            Empowered by 5 specialized agents, RAG retrieval across Mozilla, Apache, and Eclipse defect repositories, 
+            and deterministic stack trace decompilation to isolate root causes and formulate actionable code-fix recommendations and automated test plans.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <button

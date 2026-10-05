@@ -15,7 +15,7 @@ Modern software engineering organizations handle thousands of defect reports and
 ## 2. Key Architecture & Design Innovations
 
 1. **Multi-Agent Directed Acyclic Graph (DAG)**:
-   - Decentralized, single-responsibility agents: Triage Agent, Log Analysis Agent, RAG Retrieval Engine, Duplicate Detection Agent, Root Cause Agent, and Remediation Agent.
+   - Five specialized agents: Triage Agent, Log Analysis Agent, Duplicate Detection Agent, Root Cause Agent, and Remediation Agent, supported by the RAG Retrieval Engine.
    - Fault-isolated execution: If any downstream stage fails or encounters unexpected signals, previous state and timing telemetries are preserved in the strongly-typed canonical `BugAnalysisContext`.
 
 2. **Single Centralized Vector Similarity Policy**:
@@ -57,4 +57,4 @@ Measured across 10 ground-truth validation cases (`data/validation_dataset.json`
 ---
 
 ## 5. Conclusion & Production Readiness
-The platform demonstrates an end-to-end working implementation with real semantic vector search, deterministic log parsing, verified historical datasets, and enterprise-grade code patches. The system is containerized with Docker Compose and ready for free-tier or cloud deployment.
+The platform demonstrates an end-to-end working implementation with real semantic vector search, deterministic log parsing, curated historical datasets, and actionable code-fix recommendations and automated test plans. The system is containerized with Docker Compose and ready for local or cloud deployment.

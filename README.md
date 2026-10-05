@@ -7,7 +7,7 @@
 [![Pytest](https://img.shields.io/badge/Pytest-25%2F25%20Passed-emerald.svg)](https://pytest.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An autonomous software engineering diagnostic platform that accelerates defect triage, extracts crash signals deterministically, searches historical defect corpora (Mozilla, Apache, Eclipse) via 384-dimensional dense semantic vector similarity (`sentence-transformers/all-MiniLM-L6-v2`), identifies duplicates, formulates anti-hallucinated root cause hypotheses, and produces production-grade code patches with automated test plans.
+An autonomous software engineering diagnostic platform that accelerates defect triage, extracts crash signals deterministically, searches historical defect corpora (Mozilla, Apache, Eclipse) via 384-dimensional dense semantic vector similarity (`sentence-transformers/all-MiniLM-L6-v2`), identifies duplicates, formulates anti-hallucinated root cause hypotheses, and generates actionable code-fix recommendations, example patches, and automated test plans.
 
 **Organization**: Infosys Internship Evaluation Project  
 **Copyright**: Copyright (c) 2025 Vidzai Digital. MIT License.
@@ -34,9 +34,9 @@ The **Intelligent Bug Diagnosis Platform** automates this pipeline using determi
 
 ## Key Features
 
-- **Multi-Agent Orchestration**: Six cooperative, specialized agents executing in a canonical pipeline with graceful fault isolation.
+- **Multi-Agent Orchestration**: Five specialized agents executing in a canonical pipeline with graceful fault isolation.
 - **Deterministic Log Analysis**: Deterministic AST and regex parser extracting exception types, failing frames, and file paths across Java, Python, Node.js, and Unix signals without hallucinated frames.
-- **Authentic Historical Knowledge Base**: Curated and provenance-linked historical defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with authentic upstream URLs and verified resolution summaries.
+- **Curated Historical Knowledge Base**: Provenance-linked historical defect records from Mozilla Bugzilla, Apache Jira, and Eclipse Bugzilla with authentic upstream URLs and project-curated resolution summaries.
 - **Dense Semantic Embeddings**: Powered by local open-source `sentence-transformers/all-MiniLM-L6-v2` generating 384-dimensional unit vectors.
 - **Single Centralized Similarity Policy**: Exact cosine similarity with unified threshold gating:
   - $\ge 0.82$: **Likely Duplicate**
@@ -82,7 +82,7 @@ Bug Submission (Text, Stack Trace, or 5MB File Upload)
                      │
                      ▼
          [Remediation Agent]
-   (Actionable Patches & Test Suites)
+   (Actionable Recommendations & Tests)
                      │
                      ▼
         [Structured Findings UI]
@@ -95,16 +95,17 @@ Bug Submission (Text, Stack Trace, or 5MB File Upload)
 
 ---
 
-## Multi-Agent Pipeline
+## Five Specialized Agents
 
-The multi-agent architecture executes sequentially through `agents/orchestrator.py`:
+The platform coordinates five specialized, single-responsibility agents through `agents/orchestrator.py`:
 
-1. **Triage Agent** (`agents/triage_agent.py`): Infers defect severity, business priority, and affected system component using heuristic signal rules.
-2. **Log Analysis Agent** (`agents/log_analysis_agent.py`): Deterministically regex-parses execution traces into structured `StackFrame` and exception objects without hallucination.
-3. **RAG Retrieval Engine** (`rag/retrieval_engine.py`): Encodes query with `all-MiniLM-L6-v2`, queries the vector store, and extracts verified precedents meeting the 0.45 threshold.
-4. **Duplicate Detection Agent** (`agents/duplicate_detection_agent.py`): Applies the centralized 0.82 cutoff to classify as duplicate, related, or novel.
-5. **Root Cause Agent** (`agents/root_cause_agent.py`): Combines observed facts and retrieved evidence into a grounded root cause hypothesis using Four-Tier Fact Attribution.
-6. **Remediation Agent** (`agents/remediation_agent.py`): Generates unified diff code patches and unit/integration regression test plans.
+1. **Triage Agent** (`agents/triage_agent.py`): Evaluates defect severity, business priority, and affected system component using signal-based heuristic rules.
+2. **Log Analysis Agent** (`agents/log_analysis_agent.py`): Deterministically regex-parses execution traces into structured `StackFrame` and exception objects without hallucinated frames.
+3. **Duplicate Detection Agent** (`agents/duplicate_detection_agent.py`): Compares dense embeddings against indexed historical defects using the centralized similarity policy ($\ge 0.82$ duplicate threshold).
+4. **Root Cause Agent** (`agents/root_cause_agent.py`): Combines observed facts and retrieved historical evidence into a grounded causal hypothesis using Four-Tier Fact Attribution.
+5. **Remediation Agent** (`agents/remediation_agent.py`): Formulates actionable code-fix recommendations, example patch diffs, and verification test specifications.
+
+*(The RAG Retrieval Engine in `rag/retrieval_engine.py` serves as the underlying semantic retrieval service supporting the agents).*
 
 ---
 
@@ -155,7 +156,9 @@ Each historical record contains authentic provenance:
 }
 ```
 
-The five demo scenarios are explicitly partitioned with `"synthetic_demo": true` and `"data_type": "synthetic"`.
+*Note on Data Integrity:* Historical issue fields (`id`, `source`, `source_issue_id`, `source_url`, `title`, `description`, `component`, `resolution`) are directly linked to public upstream trackers, while resolution and fix summaries (`resolution_summary`, `fix_patch_summary`) are curated by the project to provide concise diagnostic context.
+
+The five demo scenarios are explicitly partitioned with `"synthetic_demo": true` and `"data_type": "synthetic"` to exercise the complete pipeline.
 
 ---
 
@@ -193,11 +196,11 @@ Wording strictly distinguishes `"Observed Facts"` from `"Likely"` inferences and
 
 ## Remediation
 
-Produces concrete remediation packages:
-- Specific action title and explanation
-- Concrete unified diff code patch
+Formulates actionable code-fix recommendations, example patch diffs, and verification test specifications:
+- Specific remediation action and technical rationale
+- Concrete unified diff example code patch
 - Automated unit/integration test specifications
-- Implementation guidance and affected files
+- Implementation guidance and affected file paths
 
 ---
 
@@ -302,7 +305,7 @@ cd ..
 
 ---
 
-## Running the Backend
+## Running Backend
 
 ```bash
 # Initialize Historical Knowledge Base and Vector Index
@@ -317,7 +320,7 @@ python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-## Running the Frontend
+## Running Frontend
 
 ```bash
 cd frontend

@@ -40,9 +40,9 @@ The system addresses the four major bottlenecks in modern defect resolution:
                                       |
                                       v
                     +-----------------+------------------+
-                    |    Module 3: Multi-Agent Pipeline  |
-                    |  - Stage 1: Triage Agent           |
-                    |  - Stage 2: Log Analysis Agent     |
+                    |    Five Specialized Agents         |
+                    |  - Agent 1: Triage Agent           |
+                    |  - Agent 2: Log Analysis Agent     |
                     +-----------------+------------------+
                                       |
                                       v
@@ -51,15 +51,15 @@ The system addresses the four major bottlenecks in modern defect resolution:
                     +-----------------+------------------+
                                       |
                     +-----------------+------------------+
-                    |    Module 2: Historical RAG        |
-                    |    Module 4: Duplicate Detection   |
-                    | (Mozilla, Apache, Eclipse Corpora) |
+                    |    RAG Retrieval Engine            |
+                    |    (Mozilla, Apache, Eclipse)      |
+                    |  - Agent 3: Duplicate Detection    |
                     +-----------------+------------------+
                                       |
                                       v
                     +-----------------+------------------+
-                    |  - Stage 5: Root Cause Agent       |
-                    |  - Stage 6: Remediation Agent      |
+                    |  - Agent 4: Root Cause Agent       |
+                    |  - Agent 5: Remediation Agent      |
                     +-----------------+------------------+
                                       |
                                       v

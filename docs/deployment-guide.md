@@ -45,8 +45,8 @@ docker-compose up --build -d
    - `RELATED_THRESHOLD=0.65`
    - `EVIDENCE_THRESHOLD=0.45`
 
-### C. PostgreSQL + pgvector Database
-- Utilize Neon.tech, Supabase, or Render PostgreSQL with `CREATE EXTENSION vector;`.
+### C. Production Migration Path: PostgreSQL + pgvector
+- For enterprise-scale production deployment, the persistent local vector index can be migrated to a dedicated PostgreSQL database with `CREATE EXTENSION vector;` (e.g. Neon.tech, Supabase, or AWS RDS).
 
 ---
 
