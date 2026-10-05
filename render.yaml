@@ -31,7 +31,7 @@ services:
       - key: MAX_FILE_SIZE_BYTES
         value: "5242880"
       - key: PYTHON_VERSION
-        value: "3.13"
+        value: "3.12.5"
       # To permit direct cross-origin browser requests from your deployed Vercel frontend,
       # add your Vercel production origin to CORS_ORIGINS here or in the Render Dashboard:
       # e.g.: - key: CORS_ORIGINS
