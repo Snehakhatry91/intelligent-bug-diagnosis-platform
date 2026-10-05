@@ -26,6 +26,10 @@ async def lifespan(app: FastAPI):
     print("[Main] Loading vector store index...")
     vector_store.load()
     print(f"[Main] Ready. Vector index contains {vector_store.count()} chunks.")
+    print("[Main] Pre-warming semantic embedder model...")
+    from rag.embedder import embedder
+    embedder.embed_text("startup-warmup")
+    print("[Main] Semantic embedder pre-warmed successfully.")
     yield
     print("[Main] Shutting down application.")
 

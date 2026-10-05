@@ -2,6 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/api",
+      "destination": "https://intelligent-bug-diagnosis-platform.onrender.com/api"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://intelligent-bug-diagnosis-platform.onrender.com/api/$1"
     },
@@ -10,7 +14,7 @@
       "destination": "https://intelligent-bug-diagnosis-platform.onrender.com/health"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api|health).*)",
       "destination": "/index.html"
     }
   ]

@@ -165,25 +165,52 @@ export interface KBEntryResponse {
 }
 
 async function handleResponse<T>(res: Response, defaultErrorMsg: string): Promise<T> {
+  const contentType = res.headers.get('content-type') || '';
+  const isJson = contentType.toLowerCase().includes('application/json');
+
   if (!res.ok) {
     let errorDetail = '';
     try {
       const text = await res.text();
-      try {
-        const json = JSON.parse(text);
-        errorDetail = json.detail || json.message || json.error || text;
-      } catch {
-        errorDetail = text.trim();
+      if (isJson) {
+        try {
+          const json = JSON.parse(text);
+          errorDetail = json.detail || json.message || json.error || text;
+        } catch {
+          errorDetail = text.trim();
+        }
+      } else {
+        // Safe check for HTML response pages (e.g. 502/504 gateway errors)
+        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+          errorDetail = `${defaultErrorMsg}: Server returned HTML error (HTTP ${res.status} ${res.statusText || 'Error'})`;
+        } else {
+          errorDetail = text.trim() || `${defaultErrorMsg} (HTTP ${res.status} ${res.statusText || ''})`.trim();
+        }
       }
     } catch {
-      errorDetail = res.statusText;
+      errorDetail = `${defaultErrorMsg} (HTTP ${res.status} ${res.statusText || ''})`.trim();
     }
     throw new Error(errorDetail || `${defaultErrorMsg} (HTTP ${res.status})`);
   }
+
+  // When res.ok is true, ensure response is valid JSON and not an HTML SPA fallback
+  if (!isJson) {
+    const text = await res.text();
+    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+      throw new Error(`Expected JSON but received HTML response (HTTP ${res.status}). Verify API rewrite configuration.`);
+    }
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      throw new Error(`Expected JSON from server but received non-JSON payload (HTTP ${res.status})`);
+    }
+  }
+
   try {
-    return (await res.json()) as T;
+    const text = await res.text();
+    return JSON.parse(text) as T;
   } catch {
-    throw new Error(`Invalid JSON response from server (HTTP ${res.status})`);
+    throw new Error(`Invalid JSON syntax in server response (HTTP ${res.status})`);
   }
 }
 
