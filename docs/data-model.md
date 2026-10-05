@@ -97,18 +97,21 @@ class BugAnalysisContext(BaseModel):
 ### 2.2 Table: `historical_defects`
 | Column Name | Type | Description |
 |---|---|---|
-| `id` | VARCHAR(64) PRIMARY KEY | Issue ID (e.g. `TOMCAT-62118`, `MOZ-149202`) |
-| `project` | VARCHAR(64) | Project name (e.g. `Apache Tomcat`, `Mozilla Firefox`) |
-| `source` | VARCHAR(64) | Source tracker (`Mozilla Bugzilla`, `Apache Jira`) |
-| `title` | VARCHAR(255) | Defect title |
-| `description` | TEXT | Description and reproduction steps |
-| `component` | VARCHAR(64) | Subsystem name |
-| `severity` | VARCHAR(32) | `Critical`, `High`, `Medium`, `Low` |
-| `priority` | VARCHAR(32) | `High`, `Medium`, `Low` |
-| `status` | VARCHAR(32) | e.g. `RESOLVED` |
-| `resolution` | TEXT | Root cause resolution |
-| `fix_patch` | TEXT NULLABLE | Code diff or patch summary |
-| `source_url` | VARCHAR(255) NULLABLE | Official URL |
+| `issue_id` | VARCHAR(100) PRIMARY KEY | Provenance issue ID (e.g. `MOZ-12870`, `KAFKA-10134`, `ECLIPSE-3322`) |
+| `project` | VARCHAR(100) | Project name (e.g. `Mozilla`, `Apache Kafka`, `Eclipse Platform`) |
+| `source` | VARCHAR(100) | Upstream bug tracker (`Mozilla Bugzilla`, `Apache Jira`, `Eclipse Bugzilla`) |
+| `title` | VARCHAR(255) | Authentic defect title from upstream tracker |
+| `description` | TEXT | Description and failure details |
+| `component` | VARCHAR(100) | Subsystem name |
+| `severity` | VARCHAR(50) | `Critical`, `High`, `Medium`, `Low` |
+| `priority` | VARCHAR(50) | `High`, `Medium`, `Low` |
+| `status` | VARCHAR(50) | Upstream status (e.g. `VERIFIED`, `RESOLVED`, `CLOSED`) |
+| `resolution` | VARCHAR(100) | Resolution status (e.g. `FIXED`) |
+| `fix_patch_summary`| TEXT | Resolution and fix summary |
+| `source_url` | VARCHAR(500) | Direct public bug tracker URL |
+| `verified` | BOOLEAN | Provenance verification flag (`True`) |
+| `data_type` | VARCHAR(50) | Data classification (`historical`) |
+| `created_at` | TIMESTAMP WITH TIME ZONE | Ingestion timestamp |
 
 ### 2.3 Table: `analysis_results`
 | Column Name | Type | Description |

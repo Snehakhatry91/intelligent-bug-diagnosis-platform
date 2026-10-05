@@ -1,165 +1,149 @@
-# Technical Interview Preparation & Comprehensive FAQ
+# Technical Viva Preparation & Comprehensive FAQ
 
-**Project Title**: Creation of Intelligent Bug Diagnosis Platform with Fix Recommendation Assistance  
-**Evaluation**: Infosys Internship Technical Viva & Defense
-
----
-
-### 1. What problem does the project solve?
-In enterprise software engineering, engineering teams spend up to 40% of their time manually triaging bug reports, analyzing noisy stack traces, identifying duplicate tickets, and searching historical issue trackers for prior fixes. This platform automates the end-to-end defect diagnostic lifecycle: it ingests reports/logs, triages severity and priority, deterministically decompiles stack traces, performs semantic vector retrieval over historical defect repositories, identifies duplicates, formulates anti-hallucinated root causes, and generates drop-in code patches with automated test plans.
+## Intelligent Bug Diagnosis Platform with Fix Recommendation Assistance
+**Organization:** Infosys Internship Evaluation Project  
+**Author:** Software Architect & QA Lead  
+**Evaluation:** Infosys Internship Technical Viva & Defense  
 
 ---
 
-### 2. Why multi-agent?
-Monolithic LLM prompts suffer from context crowding, cognitive drift, hallucinated stack traces, and lack of deterministic validation. A multi-agent architecture decomposes the problem into specialized, single-responsibility agents:
-- **Triage Agent**: Specializes in business impact and severity classification.
-- **Log Analysis Agent**: Deterministic regex and structural parsing without LLM hallucination.
-- **RAG Engine**: Pure mathematical vector similarity search.
-- **Duplicate Detection Agent**: Strict threshold-based gating.
-- **Root Cause Agent**: Causal synthesis constrained by empirical facts.
-- **Remediation Agent**: Code generation and test specification.
-This separation of concerns enables independent testing, isolated latency telemetry, and fault tolerance.
+### 1. Why RAG?
+Software defects in production environments frequently exhibit patterns already diagnosed and resolved in major open-source systems (e.g. Apache Kafka consumer rebalances, Mozilla channel deadlocks, Eclipse UI thread contention). Standard language models or rule-based heuristics cannot memorize every historical defect and tend to hallucinate non-existent issues. RAG grounds the diagnostic pipeline in verifiable historical precedents: the system retrieves actual historical records from public bug trackers (Mozilla Bugzilla, Apache Jira, Eclipse Bugzilla) and supplies them as factual anchors for root cause analysis and remediation.
 
 ---
 
-### 3. Why RAG (Retrieval-Augmented Generation)?
-Software defects rarely occur in complete isolation; modern applications frequently encounter errors already diagnosed and resolved in open-source foundations (e.g., Apache Kafka connection pool exhaustion, Mozilla HTTP channel null dereferences, Eclipse UI deadlocks). RAG allows the platform to ground its root cause reasoning and remediation recommendations in authentic, verifiable historical precedents rather than relying on an LLM's static training memory.
+### 2. Why Sentence Transformers?
+Lexical search methods (such as BM25 or keyword grep) fail when developers describe the same failure using different vocabulary (e.g., `"connection pool exhausted"` versus `"socket read timeout in HikariCP"`). Sentence Transformers map natural language sentences and stack traces into continuous dense vector representations where semantically equivalent concepts are placed in close geometric proximity, capturing underlying failure mechanisms rather than literal word matches.
 
 ---
 
-### 4. What are embeddings?
-Embeddings are dense numerical vector representations of text in a continuous multi-dimensional geometric space (384 dimensions in our architecture). Semantic embeddings map words, phrases, and exception signatures such that concepts with similar software engineering meanings reside close to each other in vector space (e.g., `NullPointerException` and `Cannot invoke method on null object` share high cosine similarity).
+### 3. Why `all-MiniLM-L6-v2`?
+`all-MiniLM-L6-v2` is an open-source distilled transformer model optimized for semantic text similarity. It achieves an optimal trade-off for local edge execution:
+- High semantic clustering quality comparable to much larger models.
+- Fast local inference on standard consumer CPUs (~5-15 ms per embedding).
+- Compact memory footprint (~80 MB model file), eliminating the need for expensive GPU infrastructure or external API services.
 
 ---
 
-### 5. What is semantic similarity?
-Semantic similarity measures how closely two pieces of text align in technical meaning, rather than merely counting lexical keyword overlaps. In defect analysis, two engineers might describe the same crash differently ("PostgreSQL connection refused" vs. "HikariCP worker pool timeout"). Semantic similarity enables the system to detect that both describe database transport saturation.
+### 4. Why 384 dimensions?
+The `all-MiniLM-L6-v2` model natively projects input text into a 384-dimensional dense vector space ($\mathbb{R}^{384}$). This dimensionality provides sufficient mathematical expressive power to capture fine-grained technical semantics while keeping distance computation (dot product) fast and memory consumption low (approx 1.5 KB per vector).
 
 ---
 
-### 6. How does vector search work?
-Vector search compares the query vector $\mathbf{u}$ against all indexed document vectors $\mathbf{v}$ using cosine similarity:
+### 5. Why cosine similarity?
+Cosine similarity measures the angular orientation between two normalized vectors:
 $$\text{Cosine Similarity}(\mathbf{u}, \mathbf{v}) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}$$
-Because all vectors in our platform are normalized to unit L2 length ($\|\mathbf{u}\|_2 = 1$), the cosine similarity is computed efficiently via dot product. The search ranks chunks in descending order and returns the top-$k$ matches meeting the evidence threshold (&ge; 0.45).
+Because all embeddings produced by our pipeline are L2-normalized ($\|\mathbf{u}\|_2 = 1.0$), cosine similarity simplifies directly to the Euclidean dot product ($\mathbf{u} \cdot \mathbf{v}$). This measures semantic direction regardless of text length, preventing longer error logs from artificially dominating shorter stack traces.
 
 ---
 
-### 7. Why Mozilla, Apache, and Eclipse?
-These three open-source ecosystems are the canonical defect benchmarks specified by Infosys and academic software engineering literature (MSR Mining Software Repositories challenge). They represent mature, large-scale systems with authentic issue IDs, rich stack traces, multi-threading challenges, and documented git commit patches.
+### 6. How does duplicate detection work?
+1. The incoming bug report (title and content) is embedded into a 384-dimensional vector via `all-MiniLM-L6-v2`.
+2. The vector store computes cosine similarities against all indexed historical defect chunks in `rag/vector_index.pkl`.
+3. The top candidates are ranked and evaluated against the centralized similarity policy:
+   - **Score $\ge 0.82$**: Flagged as **Likely Duplicate** with provenance issue link and prior resolution summary.
+   - **Score $0.65 - 0.81$**: Classified as **Related Issue** (contextual reference).
+   - **Score $0.45 - 0.64$**: Classified as **Weak Match**.
+   - **Score $< 0.45$**: Classified as **Insufficient Historical Evidence** (novel issue).
 
 ---
 
-### 8. How is data processed?
-The data pipeline executes:
-$$\text{Raw JSON Ingestion} \rightarrow \text{Cleaning} \rightarrow \text{Normalization} \rightarrow \text{Deduplication} \rightarrow \text{Chunking} \rightarrow \text{Embedding} \rightarrow \text{Vector Index}$$
-Records are cleaned of control characters, normalized into the canonical schema, chunked into semantically coherent blocks (preserving stack frames), converted into 384-dimensional dense vectors, and persisted to `rag/vector_index.pkl`.
+### 7. What happens when no historical evidence exists?
+If the maximum cosine similarity to any historical record is below the evidence threshold ($0.45$), the retrieval engine returns an empty evidence list. Downstream agents are strictly forbidden from fabricating citations: the Root Cause Agent explicitly outputs `"Insufficient historical evidence found"`, and the Remediation Agent falls back to standard language engineering best practices without claiming historical precedent.
 
 ---
 
-### 9. How does Triage work?
-The Triage Agent evaluates the defect text against empirical severity indicators (crash keywords, data loss, fatal signals), detects the affected subsystem via regex clustering, calculates priority from business impact, and derives a dynamic confidence score. It is architected to return varied severities and confidences based on input signals, never static constants.
+### 8. How does the system prevent hallucinated historical evidence?
+The anti-hallucination guardrail operates on three levels:
+1. **Mathematical Evidence Cutoff:** Queries scoring $< 0.45$ yield an explicit negative message rather than weak false positives.
+2. **Four-Tier Epistemic Attribution:** Diagnostic findings strictly distinguish *Observed Facts* (extracted directly from user input), *Historical Evidence* (retrieved from verified KB), *AI Inference* (hypothetical deduction), and *Fix Recommendations*.
+3. **No Fabricated Provenance:** Historical records cite genuine public issue IDs (e.g. `KAFKA-10134`, `MOZ-12870`) and verified upstream URLs.
 
 ---
 
-### 10. Severity vs Priority?
-- **Severity**: The technical impact of the defect on system stability (e.g., *Critical* = service down/data corruption; *Low* = cosmetic UI typo).
-- **Priority**: The business urgency of resolving the defect (e.g., *High* = must be fixed immediately in current sprint; *Low* = can be addressed in future maintenance cycles).
+### 9. Is this an LLM system?
+The platform architecture provides a modular provider interface, but **its core default implementation is a Deterministic Heuristic Engine**, paired with dense semantic embeddings (`sentence-transformers/all-MiniLM-L6-v2`) and deterministic AST/regex parsers. It does **not** rely on paid cloud LLMs (such as OpenAI or Google Gemini). An optional local LLM integration via Ollama (`llama3:8b`) is supported when configured, but the primary system is intentionally deterministic and reproducible offline.
 
 ---
 
-### 11. How does Log Analysis work?
-The Log Analysis Agent prioritizes **deterministic structural parsing**:
-1. Checks for Python tracebacks (`File "...", line ...`).
-2. Checks for Java exception frames (`at com.example...`).
-3. Checks for Node.js / JavaScript call stacks (`at ... (file.js:12:34)`).
-4. Checks for Go panic traces and kernel crash signals (`SIGSEGV`, `DeadlockDetected`).
-5. Extracts exception type, error message, failure site, and stack frames.
-It never hallucinates missing frames; if data is missing, it returns `null` or explicit notes.
+### 10. What happens without an LLM?
+The system executes completely through its deterministic engines:
+- Triage: Keyword and impact rule-based classification.
+- Log Analysis: Deterministic AST and regex extraction of exception types, line numbers, and stack frames.
+- RAG & Duplicate Detection: Local mathematical vector embedding and cosine ranking.
+- Root Cause & Remediation: Pattern-driven causal synthesis and idiomatic patch generation.
+This ensures zero downtime, zero network latency to third parties, 100% test reproducibility, and zero API costs.
 
 ---
 
-### 12. How does Root Cause work?
-The Root Cause Agent combines the deterministic log findings with RAG historical evidence. It operates under a **Four-Tier Attribution Guardrail**:
-1. *Observed Facts*: Deterministic data directly verified from logs.
-2. *Historical Evidence*: Retrieved precedent cases from knowledge base.
-3. *AI Inference*: Causal deductive reasoning, clearly labelled as hypothesis.
-4. *Fix Recommendation*: Actionable remediation strategy.
+### 11. Why use a local vector index?
+For an evaluation prototype and hermetic CI pipelines, storing embeddings in a local binary file (`rag/vector_index.pkl`) and performing vector comparison in-memory via NumPy avoids external daemon dependencies, complex network configurations, and database container requirements. The index can be recreated from scratch in seconds via `python scripts/ingest_historical_data.py`.
 
 ---
 
-### 13. How does Duplicate Detection work?
-The Duplicate Detection Agent compares the query vector against historical issues using the centralized similarity policy. If the top match achieves a cosine similarity $\ge 0.82$, it flags the bug as a **Likely Duplicate** and links the prior fix. If the score is between $0.65$ and $0.81$, it classifies it as a **Related Issue**, not a duplicate.
+### 12. Why not pgvector for the prototype?
+`pgvector` requires running a dedicated PostgreSQL service with C-level extension binaries, which complicates automated evaluation across disparate operating systems and headless CI runners. Using a local NumPy vector engine provides identical mathematical results (exact cosine similarity) without external infrastructure overhead, while maintaining a clean repository structure and identical mathematical behavior.
 
 ---
 
-### 14. How are thresholds selected?
-Thresholds were calibrated empirically across software crash texts:
-- $\ge 0.82$: Identical or near-identical stack traces and failure sites.
-- $0.65 &ndash; 0.81$: Defect in the same component or failure mode, but differing call sites.
-- $0.45 &ndash; 0.64$: Weak architectural affinity.
-- $< 0.45$: Unrelated or ungrounded queries; filtered out to prevent hallucinations.
-All thresholds are configured centrally in `backend/config.py`.
+### 13. How does the system scale?
+- **Read Scalability:** The FastAPI backend is asynchronous (`asyncio`), handling high-concurrency non-blocking I/O.
+- **Vector Index Scalability:** While the prototype uses an in-memory NumPy matrix for 15-10,000 records, the `VectorStore` interface is cleanly decoupled, allowing drop-in migration to PostgreSQL with `pgvector`, Qdrant, or Milvus for million-scale enterprise defect databases.
+- **Horizontal Scaling:** Stateless API instances can sit behind an NGINX load balancer.
 
 ---
 
-### 15. How does Remediation work?
-The Remediation Agent synthesizes the root cause hypothesis and precedent fix patches to formulate:
-- An actionable summary statement.
-- Technical explanation of why the fix works.
-- Affected code location.
-- Concrete drop-in code patch or configuration guard.
-- Recommended automated verification tests (Unit, Concurrency, Regression).
+### 14. How are historical defects verified?
+Every active record in the historical knowledge base is validated via `scripts/validate_historical_data.py`:
+- Real public issue IDs from Mozilla Bugzilla, Apache Jira, or Eclipse Bugzilla.
+- Valid live upstream HTTP/HTTPS issue tracker URLs.
+- Authentic titles, descriptions, and component assignments matching upstream records.
+- Verified status flag (`verified: true`) and explicit data type (`data_type: "historical"`).
+Records that cannot be genuinely verified against public bug trackers are excluded from the active KB.
 
 ---
 
-### 16. How is hallucination controlled?
-1. **Deterministic First**: Stack trace parsing is 100% deterministic regex/AST.
-2. **Evidence Cutoff**: RAG queries below 0.45 return "Insufficient historical evidence found" rather than inventing records.
-3. **Four-Tier Attribution**: Clear epistemic separation between empirical facts and AI inferences.
-4. **Code is Source of Truth**: Metrics and charts are computed strictly from stored SQLite/PostgreSQL rows.
+### 15. What are the limitations?
+1. **Curated KB Size:** The prototype knowledge base contains 15 curated public defects; real enterprise deployments require continuous synchronization with active bug trackers.
+2. **Deterministic Fallback Scope:** In offline mode without Ollama, causal hypotheses are drawn from deterministic heuristic templates rather than open-ended neural generation.
+3. **Log Obfuscation:** The log parser requires unminified stack traces; minified client JavaScript or obfuscated Android bytecode requires source-map / ProGuard de-obfuscation.
+4. **Duplicate Recall:** Under high semantic thresholding ($\ge 0.82$), duplicate precision is 100%, but recall is 60% on edge cases with divergent phrasing.
 
 ---
 
-### 17. What happens with no historical match?
-If no historical defect meets the 0.45 evidence cutoff, the RAG engine returns an empty evidence list. The Root Cause Agent explicitly notes `"Insufficient historical evidence found."`, and falls back to general engineering best practices without claiming historical precedent.
+### 16. How were evaluation metrics calculated?
+Evaluation metrics are dynamically computed by executing `scripts/evaluate_agents.py` against 10 ground-truth test cases in `data/validation_dataset.json`. The script compares agent predictions against actual labels to compute:
+- **Severity Accuracy:** Correct Severity / Total Cases = 80.0% (8/10)
+- **Priority Accuracy:** Correct Priority / Total Cases = 80.0% (8/10)
+- **Duplicate Accuracy:** (TP + TN) / Total Cases = 80.0% (8/10)
+- **Duplicate Precision:** TP / (TP + FP) = 3 / (3 + 0) = 100.0%
+- **Duplicate Recall:** TP / (TP + FN) = 3 / (3 + 2) = 60.0%
+- **Duplicate F1-Score:** Harmonic mean = 75.0%
+No numbers are hardcoded; metrics are recorded in `reports/latest_evaluation.json`.
 
 ---
 
-### 18. What happens if an agent fails?
-The multi-agent orchestrator implements **graceful fault isolation**: each agent executes inside an isolated try-catch block measuring millisecond durations. If Stage 2 or 3 encounters an unexpected error, previous intermediate outputs (Triage, Submission) are preserved, the error is recorded in `context.errors`, and downstream agents proceed with partial context without crashing the application.
+### 17. Why is duplicate recall lower than precision?
+In enterprise software defect tracking, false duplicates are catastrophic: incorrectly merging a novel defect into an existing issue causes the new bug to be ignored and shipped to production. Therefore, our centralized similarity policy deliberately prioritizes **high precision** (100% in empirical benchmarks) with a strict cutoff ($\ge 0.82$). Borderline cases ($0.65 - 0.81$) are flagged as *Related Issues* rather than duplicates, resulting in 60% recall with zero false duplicate alarms.
 
 ---
 
-### 19. How are agents evaluated?
-Against 10 ground-truth validation cases in `data/validation_dataset.json`. Real predictions are compared against ground truth to calculate:
-- Severity Accuracy: 80.0%
-- Priority Accuracy: 80.0%
-- Duplicate Detection Accuracy: 80.0%
-- Duplicate Detection Precision: 100.0% (Zero false duplicate alarms)
-- Duplicate Detection Recall: 60.0%
-- Duplicate Detection F1-Score: 75.0%
-Metrics are generated directly by `scripts/evaluate_agents.py` into `reports/latest_evaluation.json`.
+### 18. How does KB growth work?
+To prevent memory pollution from unverified AI hypotheses, automated diagnoses do **not** automatically enter the knowledge base. Only **human-verified bugs** are promoted:
+1. Candidate defect is submitted and diagnosed.
+2. An engineer investigates and verifies the resolution in the UI.
+3. Upon approval, the confirmed root cause and resolution are serialized, embedded via `all-MiniLM-L6-v2`, and indexed into the active vector store.
 
 ---
 
-### 20. What are limitations?
-- Local deterministic fallback relies on known patterns for deep semantic reasoning when external LLMs are disconnected.
-- SQLite is used for lightweight local execution; enterprise production requires PostgreSQL + `pgvector`.
-- Decompiling minified JavaScript or obfuscated bytecode requires source-map integration.
+### 19. Why are the five demos synthetic?
+The five demonstration scenarios (`DEMO-01` through `DEMO-05`) are explicitly synthetic test fixtures designed to stress-test the end-to-end pipeline across five archetypal software engineering failure modes (NullPointer, DB Connection Deadlock, JWT Expiration, Network Socket Timeout, JVM OutOfMemory). They are transparently marked with `data_type: "synthetic"` and `synthetic_demo: true` to prevent any confusion with historical defect records.
 
 ---
 
-### 21. How does knowledge-base growth work?
-To prevent memory pollution from incorrect automated hypotheses, only **human-verified bugs** can enter the permanent knowledge base. When an engineer verifies a diagnosis on the frontend, the system chunks the confirmed root cause and resolution, embeds it, and writes it to the active vector index.
-
----
-
-### 22. What was the biggest technical challenge?
-Ensuring cross-ecosystem consistency: handling heterogeneous crash dumps across Java, Python, and Node while maintaining mathematical reconciliation across analytics distributions and single-threshold policy enforcement.
-
----
-
-### 23. What would be improved in production?
-- Integration with live GitHub/GitLab webhooks and Jira APIs.
-- Automated PR generation with branch checkout and test execution in sandboxed Docker containers.
-- Fine-tuned domain embedding model trained on millions of MSR bug reports.
+### 20. How would you productionize the system?
+1. **Infrastructure:** Deploy the FastAPI backend on Kubernetes with horizontal pod autoscaling and migrate the vector index to PostgreSQL with `pgvector` or Qdrant.
+2. **Integrations:** Add bi-directional webhooks for GitHub Issues, Jira, and Slack alerting.
+3. **CI/CD Integration:** Automatically ingest CI test failure logs and suggest pull request fixes via GitHub Actions bots.
+4. **Authentication:** Implement enterprise OAuth2 / OpenID Connect and Role-Based Access Control (RBAC).
+5. **Observability:** Instrument OpenTelemetry distributed tracing and Prometheus/Grafana metrics dashboards for pipeline latency monitoring.

@@ -1,6 +1,6 @@
 """
 LLM Provider Abstraction Layer
-Supports Ollama, Gemini, OpenAI, and a transparent Deterministic Heuristic Engine.
+Supports local Ollama LLM integration and a transparent Deterministic Heuristic Fallback Engine.
 Explicitly labels the fallback engine as deterministic rules rather than pretending to be an LLM.
 """
 

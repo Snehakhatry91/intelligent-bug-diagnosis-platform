@@ -44,12 +44,10 @@ class Settings(BaseSettings):
     KNOWLEDGE_BASE_DATA_DIR: str = str(BASE_DIR / "data")
 
     # LLM Provider Configuration
-    # Options: "fallback" (deterministic heuristic engine), "ollama", "gemini", "openai"
+    # Options: "fallback" (deterministic heuristic engine for offline reproducibility), "ollama" (local open-weight models)
     LLM_PROVIDER: str = "fallback"
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3:8b"
-    GEMINI_API_KEY: str = ""
-    OPENAI_API_KEY: str = ""
 
     # Security & Input Constraints
     MAX_FILE_SIZE_BYTES: int = 5 * 1024 * 1024  # 5 MB maximum

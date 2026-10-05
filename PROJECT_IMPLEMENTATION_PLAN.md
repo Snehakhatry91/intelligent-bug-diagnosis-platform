@@ -96,10 +96,10 @@ The system addresses the four major bottlenecks in modern defect resolution:
 | **Styling & Icons** | **Tailwind CSS v4 + Lucide React** | Enterprise developer aesthetics (dark mode `#0b0f19`, clear status color scales, high density data views). |
 | **Visual Analytics** | **Recharts** | Reactive SVG charts bound dynamically to database aggregations. |
 | **Backend API** | **Python 3.12 + FastAPI + Pydantic v2** | High-throughput asynchronous endpoints, automatic OpenAPI/Swagger schema documentation. |
-| **Relational Database** | **PostgreSQL / SQLite (Async SQLAlchemy 2.0)** | Dual-mode: PostgreSQL + pgvector for production; embedded SQLite for zero-config local runs and CI. |
-| **Vector Engine** | **pgvector / Cosine Indexer** | 384-dimensional normalized dense vectors with inner-product cosine similarity. |
-| **Embeddings** | **Sentence Transformers (`all-MiniLM-L6-v2`) / Dense Encoder** | 384-dimensional L2-normalized dense embeddings running locally on CPU without paid third-party dependencies. |
-| **LLM / Inference** | **Modular Provider Interface** | Supports Ollama, OpenAI, Gemini, with a transparently labeled *Deterministic Heuristic Fallback Engine* for zero-failure offline execution. |
+| **Relational Database** | **SQLite (Async SQLAlchemy 2.0 + aiosqlite)** | Zero-config local execution and CI testing, with clean migration path to PostgreSQL for production. |
+| **Vector Engine** | **Persistent Local Vector Index (rag/vector_index.pkl)** | 384-dimensional normalized dense vectors with NumPy cosine similarity; migration path to pgvector/Qdrant. |
+| **Embeddings** | **Sentence Transformers (`all-MiniLM-L6-v2`)** | 384-dimensional L2-normalized dense embeddings running locally on CPU without paid third-party dependencies. |
+| **Reasoning Engine** | **Deterministic Heuristic Engine (Default)** | Deterministic rule-based synthesis for hermetic offline testing; optional local Ollama integration (`llama3:8b`). |
 | **Testing** | **Pytest + pytest-asyncio + httpx** | Automated unit, integration, and evaluation suites. |
 
 ---
